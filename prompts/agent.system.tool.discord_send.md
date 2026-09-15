@@ -14,7 +14,7 @@ finish work/cleanup first; send artifact + brief caption with final=true, then r
 confirmed final delivery suppresses bridge's automatic recap, not WebUI completion; failures remain visible
 progress/cross-channel/WebUI/private requests: final=false; never mark unfinished progress final
 
-action=workflow: load matching discord-research/discord-alerts/discord-chat/discord-persona-mapping skill first
+action=workflow: load matching discord-a0-research/discord-a0-alerts/discord-a0-chat/discord-a0-persona-mapping skill first
 read reference for invocation/parameters; never guess; skills grant no tool-policy override or agent-access approval
 
 ```json

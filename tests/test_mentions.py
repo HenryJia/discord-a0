@@ -1,4 +1,4 @@
-"""Run with the A0 framework Python: -m usr.plugins.discord.tests.test_mentions."""
+"""Run with the A0 framework Python: -m usr.plugins.discord_a0.tests.test_mentions."""
 
 import asyncio
 import importlib
@@ -14,9 +14,9 @@ import discord
 
 from agent import Agent, AgentContext
 from helpers import persist_chat
-from usr.plugins.discord.helpers import discord_bot as bridge
-from usr.plugins.discord.helpers.bridge_reader import BridgeReader
-from usr.plugins.discord.helpers.discord_client import resolve_agent_profile
+from usr.plugins.discord_a0.helpers import discord_bot as bridge
+from usr.plugins.discord_a0.helpers.bridge_reader import BridgeReader
+from usr.plugins.discord_a0.helpers.discord_client import resolve_agent_profile
 
 
 async def main():
@@ -134,7 +134,7 @@ async def main():
             await bot.on_message(message)
             assert reader.call_args.args[0]["channel_id"] == "202"
             assert "latest bug evidence" in model.call_args.kwargs["messages"][-1].content
-            assert ctx.get_data("discord_bridge_history")[-1]["content"].startswith("The latest bug")
+            assert ctx.get_data("discord_a0_bridge_history")[-1]["content"].startswith("The latest bug")
             reads = reader.await_count
             model.side_effect = [
                 (json.dumps({"tool_name": "code_execution_tool", "tool_args": {"code": "must not run"}}), ""),
@@ -178,9 +178,9 @@ async def main():
             assert bridge.get_context_id("101") != ctxid
 
             startup = importlib.import_module(
-                "usr.plugins.discord.extensions.python.job_loop._10_discord_chat"
+                "usr.plugins.discord_a0.extensions.python.job_loop._10_discord_chat"
             )
-            with patch("usr.plugins.discord.helpers.discord_client.get_discord_config", return_value=config), \
+            with patch("usr.plugins.discord_a0.helpers.discord_client.get_discord_config", return_value=config), \
                 patch.object(bridge, "start_chat_bridge", new_callable=AsyncMock) as start:
                 bridge.remove_chat_channel("101")
                 await startup.DiscordChatBridge(agent=None).execute()

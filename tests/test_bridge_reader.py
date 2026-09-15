@@ -1,4 +1,4 @@
-"""Run in the framework runtime: -m usr.plugins.discord.tests.test_bridge_reader."""
+"""Run in the framework runtime: -m usr.plugins.discord_a0.tests.test_bridge_reader."""
 
 import asyncio
 from datetime import datetime, timezone
@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, Mock
 
 import discord
 
-from usr.plugins.discord.helpers.bridge_reader import BridgeReader
+from usr.plugins.discord_a0.helpers.bridge_reader import BridgeReader
 
 
 async def main():

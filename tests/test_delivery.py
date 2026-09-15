@@ -1,4 +1,4 @@
-"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_delivery."""
+"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_delivery."""
 import asyncio
 import os
 import tempfile
@@ -6,13 +6,13 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from usr.plugins.discord.helpers.delivery import (
+from usr.plugins.discord_a0.helpers.delivery import (
     DEFAULT_UPLOAD_LIMIT, deliver_message, fences, read_attachments, split_message,
 )
-from usr.plugins.discord.helpers.discord_bot import ChatBridgeBot
-from usr.plugins.discord.helpers.discord_client import DiscordClient, DiscordAPIError
-from usr.plugins.discord.helpers.native_commands import InteractionChannel
-from usr.plugins.discord.tools.discord_send import DiscordSend
+from usr.plugins.discord_a0.helpers.discord_bot import ChatBridgeBot
+from usr.plugins.discord_a0.helpers.discord_client import DiscordClient, DiscordAPIError
+from usr.plugins.discord_a0.helpers.native_commands import InteractionChannel
+from usr.plugins.discord_a0.tools.discord_send import DiscordSend
 
 
 async def main():
@@ -113,8 +113,8 @@ async def main():
         )
         tool = DiscordSend(agent=object(), name="discord_send", method=None, message="", loop_data=None,
                            args={"channel_id": "123456789012345678", "attachments": [str(path)]})
-        with patch("usr.plugins.discord.tools.discord_send.get_discord_config", return_value=config), \
-             patch("usr.plugins.discord.tools.discord_send.DiscordClient.from_config", return_value=client):
+        with patch("usr.plugins.discord_a0.tools.discord_send.get_discord_config", return_value=config), \
+             patch("usr.plugins.discord_a0.tools.discord_send.DiscordClient.from_config", return_value=client):
             result = await tool.execute()
             assert "Sent 1" in result.message
             assert client.send_message.call_args.kwargs["files"] == [("report.md", b"# Report\n")]

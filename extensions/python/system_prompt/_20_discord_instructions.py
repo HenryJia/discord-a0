@@ -1,12 +1,12 @@
 from helpers.extension import Extension
-from usr.plugins.discord.helpers.discord_client import get_discord_config
+from usr.plugins.discord_a0.helpers.discord_client import get_discord_config
 
 
 class DiscordInstructions(Extension):
     async def execute(self, system_prompt: list[str], **kwargs):
         if not self.agent or self.agent.number != 0:
             return
-        bot_id = self.agent.context.get_data("discord_bot_id")
+        bot_id = self.agent.context.get_data("discord_a0_bot_id")
         if bot_id is None:
             return
         try:

@@ -1,11 +1,11 @@
 import time
 from pathlib import Path
 from helpers.tool import Tool, Response
-from usr.plugins.discord.helpers.discord_client import (
+from usr.plugins.discord_a0.helpers.discord_client import (
     DiscordClient, DiscordAPIError, format_messages, get_discord_config,
     get_modes_to_try,
 )
-from usr.plugins.discord.helpers.sanitize import require_auth, truncate_bulk, clamp_limit
+from usr.plugins.discord_a0.helpers.sanitize import require_auth, truncate_bulk, clamp_limit
 
 SUMMARIZE_PROMPT = """You are summarizing a Discord conversation. Analyze the following messages and produce a structured summary.
 

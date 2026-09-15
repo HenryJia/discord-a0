@@ -1,7 +1,7 @@
-"""Offline check: /opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_bridge_ledger."""
+"""Offline check: /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_bridge_ledger."""
 import json
 
-from usr.plugins.discord.helpers.discord_bot import ChatBridgeBot
+from usr.plugins.discord_a0.helpers.discord_bot import ChatBridgeBot
 
 
 def main():

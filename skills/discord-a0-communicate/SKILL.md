@@ -1,5 +1,5 @@
 ---
-name: discord-communicate
+name: discord-a0-communicate
 description: "Compose and send authorized Discord messages, replies and reactions using the bot account."
 version: "1.2.0"
 allowed-tools: [discord_read, discord_send]

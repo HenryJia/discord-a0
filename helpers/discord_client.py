@@ -41,7 +41,7 @@ def get_discord_config(agent=None, bot_id=None):
     """Load Discord config through the plugin framework with env var overrides."""
     try:
         from helpers import plugins
-        config = deepcopy(plugins.get_plugin_config("discord", agent=agent) or {})
+        config = deepcopy(plugins.get_plugin_config("discord_a0", agent=agent) or {})
     except Exception:
         config = {}
 
@@ -56,7 +56,7 @@ def get_discord_config(agent=None, bot_id=None):
         if bot.get("id") == "default" and os.environ.get("DISCORD_BOT_TOKEN"):
             bot["token"] = os.environ["DISCORD_BOT_TOKEN"]
     if bot_id is None and agent is not None:
-        bot_id = agent.context.get_data("discord_bot_id")
+        bot_id = agent.context.get_data("discord_a0_bot_id")
     if bot_id is not None:
         selected = next((bot for bot in bots if bot.get("id") == bot_id), None)
         if selected is None:
@@ -323,7 +323,7 @@ def format_messages(messages: list, include_ids: bool = False) -> str:
     All external content (usernames, message text, embeds, filenames) is
     sanitized to neutralise prompt injection attempts.
     """
-    from usr.plugins.discord.helpers.sanitize import (
+    from usr.plugins.discord_a0.helpers.sanitize import (
         sanitize_content, sanitize_username, sanitize_embed, sanitize_filename,
     )
 

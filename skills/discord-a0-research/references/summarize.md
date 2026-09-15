@@ -1,6 +1,6 @@
 # research: summarize
 
-Load the **discord-research** skill before calling this workflow. The old `discord_summarize` name is a backend identifier, not a callable public tool.
+Load the **discord-a0-research** skill before calling this workflow. The old `discord_summarize` name is a backend identifier, not a callable public tool.
 
 Use this complete invocation:
 

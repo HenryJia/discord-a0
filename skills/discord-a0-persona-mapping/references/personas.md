@@ -1,6 +1,6 @@
 # personas: registry
 
-Load the **discord-persona-mapping** skill before calling this workflow. The old `discord_members` name is a backend identifier, not a callable public tool.
+Load the **discord-a0-persona-mapping** skill before calling this workflow. The old `discord_members` name is a backend identifier, not a callable public tool.
 
 Use this complete invocation:
 

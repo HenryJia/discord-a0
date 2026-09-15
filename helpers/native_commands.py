@@ -48,7 +48,7 @@ def create_tree(bot):
         from agent import AgentContext
         from helpers import integration_commands
         from plugins._commands.helpers import commands
-        from usr.plugins.discord.helpers.discord_bot import get_context_id
+        from usr.plugins.discord_a0.helpers.discord_bot import get_context_id
         context = AgentContext.get(get_context_id(str(interaction.channel_id), bot.bot_id) or '')
         names = {item['name']: item.get('description', '') for item in commands.list_context_commands(context)}
         for item in integration_commands.COMMAND_REGISTRY:

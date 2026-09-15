@@ -2,7 +2,7 @@ import { createStore } from "/js/AlpineStore.js";
 import { callJsonApi } from "/js/api.js";
 import { store as notifications } from "/components/notifications/notification-store.js";
 
-const endpoint = "/plugins/discord/";
+const endpoint = "/plugins/discord_a0/";
 const notify = (type, message) => notifications.createNotification(type, message, "Discord");
 
 function newBot() {
@@ -15,7 +15,7 @@ function newBot() {
     };
 }
 
-export const store = createStore("discordConfig", {
+export const store = createStore("discordA0Config", {
     bots: [], busy: false, busyBot: "", loaded: false, timer: null, generation: 0,
     settingsContext: null, savedDrafts: {},
     controls: [

@@ -1,6 +1,6 @@
 # administration: status
 
-Load the **discord-chat** skill before calling this workflow. The old `discord_chat` name is a backend identifier, not a callable public tool.
+Load the **discord-a0-chat** skill before calling this workflow. The old `discord_chat` name is a backend identifier, not a callable public tool.
 
 Use this complete invocation:
 

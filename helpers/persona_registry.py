@@ -10,9 +10,9 @@ def _get_registry_path() -> Path:
     """Resolve registry path within the plugin's data directory."""
     candidates = [
         Path(__file__).parent.parent / "data" / REGISTRY_FILENAME,
-        Path("/a0/usr/plugins/discord/data") / REGISTRY_FILENAME,
-        Path("/a0/plugins/discord/data") / REGISTRY_FILENAME,
-        Path("/git/agent-zero/usr/plugins/discord/data") / REGISTRY_FILENAME,
+        Path("/a0/usr/plugins/discord_a0/data") / REGISTRY_FILENAME,
+        Path("/a0/plugins/discord_a0/data") / REGISTRY_FILENAME,
+        Path("/git/agent-zero/usr/plugins/discord_a0/data") / REGISTRY_FILENAME,
     ]
     for path in candidates:
         if path.exists():
@@ -33,7 +33,7 @@ def load_registry() -> dict:
 
 def save_registry(registry: dict):
     registry["updated_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    from usr.plugins.discord.helpers.sanitize import secure_write_json
+    from usr.plugins.discord_a0.helpers.sanitize import secure_write_json
     secure_write_json(_get_registry_path(), registry)
 
 

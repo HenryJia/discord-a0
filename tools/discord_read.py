@@ -1,9 +1,9 @@
 from helpers.tool import Tool, Response
-from usr.plugins.discord.helpers.discord_client import (
+from usr.plugins.discord_a0.helpers.discord_client import (
     DiscordClient, DiscordAPIError, format_messages, get_discord_config,
     get_modes_to_try,
 )
-from usr.plugins.discord.helpers.sanitize import require_auth, sanitize_channel_name
+from usr.plugins.discord_a0.helpers.sanitize import require_auth, sanitize_channel_name
 
 
 class DiscordRead(Tool):
@@ -75,7 +75,7 @@ class DiscordRead(Tool):
 
 
 def _format_members(members: list, guild_id: str) -> str:
-    from usr.plugins.discord.helpers.sanitize import sanitize_username
+    from usr.plugins.discord_a0.helpers.sanitize import sanitize_username
     lines = [f"Members of guild {guild_id} ({len(members)} shown; this is one page):"]
     for member in members:
         user = member.get("user", {})

@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 import discord
 
-from usr.plugins.discord.helpers.sanitize import (
+from usr.plugins.discord_a0.helpers.sanitize import (
     sanitize_channel_name, sanitize_content, sanitize_embed, sanitize_filename,
     sanitize_username,
 )

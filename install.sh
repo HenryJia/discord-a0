@@ -7,7 +7,7 @@
 #
 # For Docker:
 #   docker exec <container> bash -c "cd /tmp && ./install.sh"
-#   Or: docker cp discord-plugin/ <container>:/a0/usr/plugins/discord && \
+#   Or: docker cp discord-plugin/ <container>:/a0/usr/plugins/discord_a0 && \
 
 set -eu
 
@@ -25,7 +25,7 @@ else
     exit 1
 fi
 
-PLUGIN_DIR="$A0_ROOT/usr/plugins/discord"
+PLUGIN_DIR="$A0_ROOT/usr/plugins/discord_a0"
 
 echo "=== Discord Plugin Installer ==="
 echo "Source:  $SCRIPT_DIR"
@@ -78,7 +78,7 @@ touch "$PLUGIN_DIR/.toggle-1"
 
 # If /a0 is a runtime copy of /git/agent-zero, also install there
 if [ "$A0_ROOT" = "/a0" ] && [ -d "/git/agent-zero/usr" ]; then
-    GIT_PLUGIN="/git/agent-zero/usr/plugins/discord"
+    GIT_PLUGIN="/git/agent-zero/usr/plugins/discord_a0"
     mkdir -p "$(dirname "$GIT_PLUGIN")"
     cp -r "$PLUGIN_DIR" "$GIT_PLUGIN" 2>/dev/null || true
 fi

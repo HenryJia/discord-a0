@@ -1,4 +1,4 @@
-"""Run with framework Python: -m usr.plugins.discord.tests.test_slash_commands."""
+"""Run with framework Python: -m usr.plugins.discord_a0.tests.test_slash_commands."""
 import asyncio
 import tempfile
 from contextlib import nullcontext
@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock, Mock, patch
 from agent import AgentContext
 from helpers import persist_chat
 from plugins._commands.helpers import commands
-from usr.plugins.discord.helpers import discord_bot as bridge
-from usr.plugins.discord.helpers.slash_commands import DiscordCommands
+from usr.plugins.discord_a0.helpers import discord_bot as bridge
+from usr.plugins.discord_a0.helpers.slash_commands import DiscordCommands
 
 
 async def main():
@@ -48,7 +48,7 @@ async def main():
             message.id += 1
             ctx = bot._get_bridge_context('101', message)
             adapter = DiscordCommands(bot, message)
-            assert ctx.data['discord_bot_id'] == 'support' and ctx.data['discord_channel_id'] == '101'
+            assert ctx.data['discord_a0_bot_id'] == 'support' and ctx.data['discord_a0_channel_id'] == '101'
 
             async def send(text):
                 message.id += 1
@@ -79,9 +79,9 @@ async def main():
             assert new_id != ctx.id and bridge.get_context_id('101', 'default') is None
             assert ctx.id in await send('/sessions')
             other = AgentContext(ctx.config, name='Other channel')
-            other.data.update(discord_bot_id='support', discord_channel_id='202')
+            other.data.update(discord_a0_bot_id='support', discord_a0_channel_id='202')
             assert 'Choose a chat' in await send('/chat ' + other.id)
-            other.data.update(discord_bot_id='another-bot', discord_channel_id='101')
+            other.data.update(discord_a0_bot_id='another-bot', discord_a0_channel_id='101')
             assert 'Choose a chat' in await send('/chat ' + other.id)
             await send('/chat ' + ctx.id)
             assert bridge.get_context_id('101', 'support') == ctx.id
@@ -120,7 +120,7 @@ async def main():
             await adapter.apply_result(ctx, 'copy', {'effects': [{'type': 'copy_transcript'}]})
             assert channel.send.call_args.kwargs.get('file') or 'transcript' in channel.send.call_args.args[0]
             with patch('helpers.plugins.toggle_plugin') as toggle:
-                for name in ('discord', '_commands'):
+                for name in ('discord_a0', '_commands'):
                     try:
                         await adapter.settings_menu(ctx, 'plugins', name + ' off')
                     except ValueError:

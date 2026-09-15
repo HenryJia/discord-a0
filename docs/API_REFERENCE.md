@@ -6,7 +6,7 @@ Internal REST API endpoints exposed by the Discord plugin for the Agent Zero Web
 
 ## Connection Test
 
-### `GET|POST /api/plugins/discord/discord_test`
+### `GET|POST /api/plugins/discord_a0/discord_test`
 
 Test the Discord connection using the configured token.
 
@@ -32,7 +32,7 @@ Test the Discord connection using the configured token.
 
 ## Configuration
 
-### `GET /api/plugins/discord/discord_config_api`
+### `GET /api/plugins/discord_a0/discord_config_api`
 
 Get the current plugin configuration. Tokens are masked for security (first 4 + last 4 characters shown).
 
@@ -64,7 +64,7 @@ Get the current plugin configuration. Tokens are masked for security (first 4 + 
 }
 ```
 
-### `POST /api/plugins/discord/discord_config_api`
+### `POST /api/plugins/discord_a0/discord_config_api`
 
 Update the plugin configuration. Masked tokens (containing `...`) are preserved from the existing config to prevent accidental overwrites.
 

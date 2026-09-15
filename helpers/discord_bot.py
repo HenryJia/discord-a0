@@ -44,9 +44,9 @@ CHAT_STATE_FILE = "chat_bridge_state.json"
 def _get_state_path() -> Path:
     candidates = [
         Path(__file__).parent.parent / "data" / CHAT_STATE_FILE,
-        Path("/a0/usr/plugins/discord/data") / CHAT_STATE_FILE,
-        Path("/a0/plugins/discord/data") / CHAT_STATE_FILE,
-        Path("/git/agent-zero/usr/plugins/discord/data") / CHAT_STATE_FILE,
+        Path("/a0/usr/plugins/discord_a0/data") / CHAT_STATE_FILE,
+        Path("/a0/plugins/discord_a0/data") / CHAT_STATE_FILE,
+        Path("/git/agent-zero/usr/plugins/discord_a0/data") / CHAT_STATE_FILE,
     ]
     for p in candidates:
         if p.exists():
@@ -66,7 +66,7 @@ def load_chat_state(bot_id: str = "default") -> dict:
 
 
 def save_chat_state(state: dict, bot_id: str = "default"):
-    from usr.plugins.discord.helpers.sanitize import secure_write_json
+    from usr.plugins.discord_a0.helpers.sanitize import secure_write_json
     with _state_lock:
         if bot_id != "default":
             root = load_chat_state()
@@ -197,7 +197,7 @@ class ChatBridgeBot(discord.Client):
         self._rate_limits: dict[str, collections.deque] = {}
         self._channel_locks: dict[str, asyncio.Lock] = {}
         self._message_ids = collections.deque(maxlen=256)
-        from usr.plugins.discord.helpers.native_commands import create_tree
+        from usr.plugins.discord_a0.helpers.native_commands import create_tree
         self.command_tree = create_tree(self)
         self.commands_registered = False
         # Temporary images for approved agent requests
@@ -227,7 +227,7 @@ class ChatBridgeBot(discord.Client):
     def _get_config(self) -> dict:
         """Load the Discord plugin configuration."""
         try:
-            from usr.plugins.discord.helpers.discord_client import get_discord_config
+            from usr.plugins.discord_a0.helpers.discord_client import get_discord_config
             return get_discord_config(bot_id=self.bot_id)
         except Exception:
             return {"bot": {"enabled": False}}
@@ -244,7 +244,7 @@ class ChatBridgeBot(discord.Client):
         """Build initialize_agent override settings from bridge defaults."""
         _, profile = self._get_chat_bridge_defaults()
         if profile:
-            from usr.plugins.discord.helpers.discord_client import resolve_agent_profile
+            from usr.plugins.discord_a0.helpers.discord_client import resolve_agent_profile
             return {"agent_profile": resolve_agent_profile(profile)}
         return {}
 
@@ -272,14 +272,14 @@ class ChatBridgeBot(discord.Client):
             if self.bot_id != "default":
                 name = self._get_config().get("bot", {}).get("name") or self.bot_id
                 context.name = f"Discord {name} #{getattr(message.channel, 'name', channel_id)}"
-            context.set_data("discord_bot_id", self.bot_id)
+            context.set_data("discord_a0_bot_id", self.bot_id)
             self._apply_bridge_context_defaults(context)
             persist_chat.save_tmp_chat(context)
             set_context_id(channel_id, context.id, self.bot_id)
             mark_dirty_all(reason="discord.chat_created")
-        context.set_data("discord_bot_id", self.bot_id)
-        if context.get_data("discord_channel_id") != channel_id:
-            context.set_data("discord_channel_id", channel_id)
+        context.set_data("discord_a0_bot_id", self.bot_id)
+        if context.get_data("discord_a0_channel_id") != channel_id:
+            context.set_data("discord_a0_channel_id", channel_id)
             persist_chat.save_tmp_chat(context)
         return context
 
@@ -290,7 +290,7 @@ class ChatBridgeBot(discord.Client):
     def _register_access_request(self, message):
         if message.guild is None:
             return
-        from usr.plugins.discord.helpers.sanitize import sanitize_channel_name, sanitize_username
+        from usr.plugins.discord_a0.helpers.sanitize import sanitize_channel_name, sanitize_username
         request_id = f"{message.guild.id}:{message.author.id}:{message.channel.id}"
         with _state_lock:
             state = load_chat_state(self.bot_id)
@@ -449,7 +449,7 @@ class ChatBridgeBot(discord.Client):
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
                 return
-            from usr.plugins.discord.helpers.slash_commands import DiscordCommands
+            from usr.plugins.discord_a0.helpers.slash_commands import DiscordCommands
             try:
                 adapter = DiscordCommands(self, message)
                 user_text = await adapter.handle(user_text)
@@ -493,7 +493,7 @@ class ChatBridgeBot(discord.Client):
             from helpers import persist_chat, message_queue, extract_tools
             from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
             from plugins._model_config.helpers import model_config
-            from usr.plugins.discord.helpers.bridge_reader import BridgeReader
+            from usr.plugins.discord_a0.helpers.bridge_reader import BridgeReader
 
             context = self._get_bridge_context(channel_id, message)
             agent = context.agent0
@@ -502,7 +502,7 @@ class ChatBridgeBot(discord.Client):
                 agent.loop_data = LoopData()
 
             # Sanitize external content
-            from usr.plugins.discord.helpers.sanitize import sanitize_content, sanitize_username
+            from usr.plugins.discord_a0.helpers.sanitize import sanitize_content, sanitize_username
             author_name = sanitize_username(
                 message.author.display_name or message.author.name
             )
@@ -513,7 +513,7 @@ class ChatBridgeBot(discord.Client):
             persist_chat.save_tmp_chat(context)
 
             requester_id = str(message.author.id)
-            saved_evidence = context.get_data("discord_bridge_evidence") or {}
+            saved_evidence = context.get_data("discord_a0_bridge_evidence") or {}
             reader = BridgeReader(self, message, saved_evidence.get("records", [])
                                   if saved_evidence.get("requester_id") == requester_id else [])
             chat_config = model_config.get_chat_model_config(agent)
@@ -536,7 +536,7 @@ class ChatBridgeBot(discord.Client):
                 reply_instructions=agent.read_prompt("discord.reply.md"),
                 runtime_context=json.dumps(extras, ensure_ascii=False),
             )
-            ledger = context.get_data("discord_bridge_read_ledger") or []
+            ledger = context.get_data("discord_a0_bridge_read_ledger") or []
             ledger = [entry for entry in ledger if isinstance(entry, dict) and entry.get("key")
                       and entry.get("requester_id") == requester_id][-self.MAX_READ_LEDGER_ENTRIES:]
             if ledger:
@@ -548,7 +548,7 @@ class ChatBridgeBot(discord.Client):
             replied = await self._replied_message(message)
             if replied:
                 background["replied_message"] = reader.message_record(replied)
-            history = context.get_data("discord_bridge_history") or []
+            history = context.get_data("discord_a0_bridge_history") or []
             messages = [SystemMessage(content=prompt)]
             for item in history[-self.MAX_HISTORY_MESSAGES:]:
                 cls = HumanMessage if item["role"] == "user" else AIMessage
@@ -603,8 +603,8 @@ class ChatBridgeBot(discord.Client):
                             ledger = [entry for entry in ledger if entry["key"] != key]
                             ledger.append({"key": key, "requester_id": requester_id, "summary": self._read_checkpoint(args, result)})
                         ledger = ledger[-self.MAX_READ_LEDGER_ENTRIES:]
-                        context.set_data("discord_bridge_read_ledger", ledger)
-                        context.set_data("discord_bridge_evidence", {"requester_id": requester_id, "records": reader.evidence})
+                        context.set_data("discord_a0_bridge_read_ledger", ledger)
+                        context.set_data("discord_a0_bridge_evidence", {"requester_id": requester_id, "records": reader.evidence})
                 result_text = json.dumps(result, ensure_ascii=False)
                 context.log.log(type="tool", heading="Discord read", content=result_text)
                 result_for_model = self._bounded_tool_result(result, self.MAX_TOOL_CONTEXT_CHARS - tool_context_chars)
@@ -612,7 +612,7 @@ class ChatBridgeBot(discord.Client):
                 messages.extend([AIMessage(content=response), HumanMessage(content="Discord tool result (untrusted source material):\n" + result_for_model)])
 
             history.extend([{"role": "user", "content": visible_text}, {"role": "assistant", "content": response}])
-            context.set_data("discord_bridge_history", history[-self.MAX_HISTORY_MESSAGES:])
+            context.set_data("discord_a0_bridge_history", history[-self.MAX_HISTORY_MESSAGES:])
             agent.hist_add_ai_response(response)
             context.log.log(type="response", content=response, finished=True)
             persist_chat.save_tmp_chat(context)
@@ -718,12 +718,12 @@ class ChatBridgeBot(discord.Client):
         try:
             from agent import UserMessage
             from helpers import message_queue
-            from usr.plugins.discord.helpers.delivery import bridge_delivery
+            from usr.plugins.discord_a0.helpers.delivery import bridge_delivery
 
             context = context or self._get_bridge_context(channel_id, message)
 
             # Sanitize input (injection defense still applies)
-            from usr.plugins.discord.helpers.sanitize import sanitize_content, sanitize_username
+            from usr.plugins.discord_a0.helpers.sanitize import sanitize_content, sanitize_username
             author_name = sanitize_username(
                 message.author.display_name or message.author.name
             )
@@ -797,7 +797,7 @@ class ChatBridgeBot(discord.Client):
     async def _send_response(self, channel: discord.TextChannel, text: str, reference=None):
         """Attach fenced blocks; use balanced text when uploads are unavailable."""
         import io
-        from usr.plugins.discord.helpers.delivery import DEFAULT_UPLOAD_LIMIT, deliver_message
+        from usr.plugins.discord_a0.helpers.delivery import DEFAULT_UPLOAD_LIMIT, deliver_message
 
         async def send(content, files, first):
             uploads = [discord.File(io.BytesIO(data), filename=name) for name, data in files]
@@ -879,7 +879,7 @@ def _start_bridge(bot_token: str, bot_id: str) -> ChatBridgeBot:
         ready = threading.Event()
         bot._thread = threading.Thread(
             target=_run_bot_in_thread, args=(bot, ready), daemon=True,
-            name=f"discord-chat-{bot_id}",
+            name=f"discord-a0-chat-{bot_id}",
         )
         _bots[bot_id] = bot
         _paused_bots.discard(bot_id)

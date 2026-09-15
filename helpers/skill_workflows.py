@@ -3,24 +3,24 @@ import importlib
 
 from helpers import skills, tool_policy
 from helpers.tool import Response
-from usr.plugins.discord.helpers.discord_client import DiscordClient, get_discord_config, get_modes_to_try
-from usr.plugins.discord.helpers.sanitize import require_auth
+from usr.plugins.discord_a0.helpers.discord_client import DiscordClient, get_discord_config, get_modes_to_try
+from usr.plugins.discord_a0.helpers.sanitize import require_auth
 
 
 WORKFLOWS = {
-    "research": ("discord-research", {
+    "research": ("discord-a0-research", {
         "summarize": ("discord_summarize", "DiscordSummarize"),
         "insights": ("discord_insights", "DiscordInsights"),
     }),
-    "administration": ("discord-chat", {
+    "administration": ("discord-a0-chat", {
         action: ("discord_chat", "DiscordChat")
         for action in ("start", "stop", "status", "add_channel", "remove_channel", "list")
     }),
-    "monitoring": ("discord-alerts", {
+    "monitoring": ("discord-a0-alerts", {
         action: ("discord_poll", "DiscordPoll")
         for action in ("check", "watch", "unwatch", "list", "setup_scheduler")
     }),
-    "personas": ("discord-persona-mapping", {
+    "personas": ("discord-a0-persona-mapping", {
         action: ("discord_members", "DiscordMembers")
         for action in ("list", "info", "search", "note", "registry", "sync")
     }),
@@ -37,7 +37,7 @@ async def _check_scope(agent, config, parameters, workflow, operation):
         raise ValueError("Server is not in this bot's allowed servers list.")
     targets = [parameters.get("thread_id") or parameters.get("channel_id")]
     if workflow == "monitoring" and operation == "check" and not targets[0]:
-        from usr.plugins.discord.helpers.poll_state import get_watch_channels
+        from usr.plugins.discord_a0.helpers.poll_state import get_watch_channels
         targets = list(get_watch_channels())
     for target in filter(None, targets):
         modes = get_modes_to_try(config, parameters.get("mode") or None)
@@ -76,7 +76,7 @@ async def run_workflow(tool):
         module_name, class_name = operations[operation]
         # Retain explicit legacy blocks after removing the old public tools.
         for name in ("discord_send", module_name):
-            decision = tool_policy.resolve_tool(tool.agent, name, canonical_id=f"plugin:discord:{name}")
+            decision = tool_policy.resolve_tool(tool.agent, name, canonical_id=f"plugin:discord_a0:{name}")
             if not decision.allowed:
                 raise ValueError(f"{name} is blocked by the current tool policy.")
         config = get_discord_config(tool.agent, bot_id=parameters.get("bot_id"))
@@ -100,7 +100,7 @@ async def run_workflow(tool):
             if interval < 1 or interval > 1440 or (interval < 60 and 60 % interval) or (interval >= 60 and (interval % 60 or 24 % (interval // 60))):
                 raise ValueError("Use a supported interval: 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60, 120, 180, 240, 360, 480, 720 or 1440 minutes.")
             parameters["interval"] = str(interval)
-        module = importlib.import_module(f"usr.plugins.discord.helpers.workflows.{module_name}")
+        module = importlib.import_module(f"usr.plugins.discord_a0.helpers.workflows.{module_name}")
         backend = getattr(module, class_name)(
             agent=tool.agent, name=module_name, method=None, args=parameters,
             message=tool.message, loop_data=tool.loop_data,

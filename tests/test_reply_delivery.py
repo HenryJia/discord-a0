@@ -1,13 +1,13 @@
-"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_reply_delivery."""
+"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_reply_delivery."""
 import asyncio
 from contextlib import nullcontext
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from helpers.defer import DeferredTask
-from usr.plugins.discord.helpers import discord_bot as bridge
-from usr.plugins.discord.helpers.delivery import bridge_delivery
-from usr.plugins.discord.tools.discord_send import DiscordSend
+from usr.plugins.discord_a0.helpers import discord_bot as bridge
+from usr.plugins.discord_a0.helpers.delivery import bridge_delivery
+from usr.plugins.discord_a0.tools.discord_send import DiscordSend
 
 
 async def main():
@@ -54,8 +54,8 @@ async def main():
         context.communicate = lambda msg: task.start_task(run, msg)
         with patch.object(bot, "_has_tool_access", return_value=True), \
              patch("helpers.message_queue.log_user_message"), \
-             patch("usr.plugins.discord.tools.discord_send.get_discord_config", return_value=config), \
-             patch("usr.plugins.discord.tools.discord_send.DiscordClient.from_config", return_value=client):
+             patch("usr.plugins.discord_a0.tools.discord_send.get_discord_config", return_value=config), \
+             patch("usr.plugins.discord_a0.tools.discord_send.DiscordClient.from_config", return_value=client):
             async def request():
                 return await bot._get_full_agent_response(channel_id, "send screenshot", message, context=context)
 
@@ -72,7 +72,7 @@ async def main():
             assert await request() == "WebUI completion.", "Unconfirmed writes must not suppress errors"
             assert not receipts[-1]["sent_ids"] and "Error" in results[-1].message
             client.send_message.side_effect = None
-            with patch("usr.plugins.discord.tools.discord_send.deliver_message", new_callable=AsyncMock,
+            with patch("usr.plugins.discord_a0.tools.discord_send.deliver_message", new_callable=AsyncMock,
                        return_value=([{"id": "fallback"}], ["image.png"])):
                 assert await request() == "WebUI completion."
                 assert not receipts[-1]["sent_ids"] and "NOT delivered" in results[-1].message

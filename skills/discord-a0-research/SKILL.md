@@ -1,5 +1,5 @@
 ---
-name: discord-research
+name: discord-a0-research
 description: "On-demand Discord summaries, insights and evidence-backed research; optional bulk processing and memory saving."
 version: "1.2.0"
 allowed-tools: [discord_read, discord_send]
@@ -11,7 +11,7 @@ Prefer ordinary reasoning over a separate model call for short excerpts. Use dis
 
 For historical lookup in the read-only Discord bridge, use its date/author/keyword search first. The normal Agent Zero discord_read tool does not expose that bridge-only search action.
 
-Only when bulk processing is useful, open the relevant reference with skills_tool action=read_file, skill_name=discord-research:
+Only when bulk processing is useful, open the relevant reference with skills_tool action=read_file, skill_name=discord-a0-research:
 - references/summarize.md: structured overview, topics, decisions, actions and participants.
 - references/insights.md: themes, contested claims, research directions and an optional focus.
 

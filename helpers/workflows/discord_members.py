@@ -1,12 +1,12 @@
 from helpers.tool import Tool, Response
-from usr.plugins.discord.helpers.discord_client import (
+from usr.plugins.discord_a0.helpers.discord_client import (
     DiscordClient, DiscordAPIError, get_discord_config, get_modes_to_try,
 )
-from usr.plugins.discord.helpers.persona_registry import (
+from usr.plugins.discord_a0.helpers.persona_registry import (
     upsert_user, get_user, search_users, get_guild_users,
     format_user_profile, load_registry,
 )
-from usr.plugins.discord.helpers.sanitize import require_auth, sanitize_username
+from usr.plugins.discord_a0.helpers.sanitize import require_auth, sanitize_username
 
 
 class DiscordMembers(Tool):

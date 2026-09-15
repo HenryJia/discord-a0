@@ -1,14 +1,14 @@
-"""Run from /a0: /opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_multi_bot."""
+"""Run from /a0: /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_multi_bot."""
 import asyncio
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from usr.plugins.discord.helpers import discord_bot as bridge
-from usr.plugins.discord.helpers.discord_client import get_bot_configs, get_discord_config
-from usr.plugins.discord.hooks import save_plugin_config
-from usr.plugins.discord.extensions.python.system_prompt._20_discord_instructions import DiscordInstructions
+from usr.plugins.discord_a0.helpers import discord_bot as bridge
+from usr.plugins.discord_a0.helpers.discord_client import get_bot_configs, get_discord_config
+from usr.plugins.discord_a0.hooks import save_plugin_config
+from usr.plugins.discord_a0.extensions.python.system_prompt._20_discord_instructions import DiscordInstructions
 
 
 async def main():

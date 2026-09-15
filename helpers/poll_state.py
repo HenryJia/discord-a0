@@ -10,9 +10,9 @@ STATE_FILENAME = "poll_state.json"
 def _get_state_path() -> Path:
     candidates = [
         Path(__file__).parent.parent / "data" / STATE_FILENAME,
-        Path("/a0/usr/plugins/discord/data") / STATE_FILENAME,
-        Path("/a0/plugins/discord/data") / STATE_FILENAME,
-        Path("/git/agent-zero/usr/plugins/discord/data") / STATE_FILENAME,
+        Path("/a0/usr/plugins/discord_a0/data") / STATE_FILENAME,
+        Path("/a0/plugins/discord_a0/data") / STATE_FILENAME,
+        Path("/git/agent-zero/usr/plugins/discord_a0/data") / STATE_FILENAME,
     ]
     for path in candidates:
         if path.exists():
@@ -31,7 +31,7 @@ def load_state() -> dict:
 
 
 def save_state(state: dict):
-    from usr.plugins.discord.helpers.sanitize import secure_write_json
+    from usr.plugins.discord_a0.helpers.sanitize import secure_write_json
     secure_write_json(_get_state_path(), state)
 
 

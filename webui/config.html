@@ -2,22 +2,22 @@
 <head>
     <title>Discord</title>
     <script type="module">
-        import { store } from "/plugins/discord/webui/discord-store.js";
+        import { store } from "/plugins/discord_a0/webui/discord-store.js";
     </script>
 </head>
 <body>
-    <div x-data x-init="$store.discordConfig.initConfig(config, context)" x-destroy="$store.discordConfig.cleanup()">
+    <div x-data x-init="$store.discordA0Config.initConfig(config, context)" x-destroy="$store.discordA0Config.cleanup()">
         <template x-if="config &amp;&amp; Array.isArray(config.bots)">
             <div class="discord-config">
                 <div class="discord-config-heading">
                     <div class="section-title">Discord</div>
                     <button type="button" class="btn btn-action" title="Refresh bot status" aria-label="Refresh bot status"
-                        @click="$store.discordConfig.refresh()" :disabled="$store.discordConfig.busy || !!$store.discordConfig.busyBot || $store.discordConfig.scoped">
+                        @click="$store.discordA0Config.refresh()" :disabled="$store.discordA0Config.busy || !!$store.discordA0Config.busyBot || $store.discordA0Config.scoped">
                         <x-icon name="refresh"></x-icon>
                     </button>
                 </div>
                 <div class="section-description">Connect one entry per Discord bot. Each has its own access rules, model preset, agent profile and conversations. Save settings to apply changes.</div>
-                <div class="field-description" x-show="$store.discordConfig.scoped">Live bots are managed under Global / All profiles. These scoped settings apply to agent tools.</div>
+                <div class="field-description" x-show="$store.discordA0Config.scoped">Live bots are managed under Global / All profiles. These scoped settings apply to agent tools.</div>
                 <template x-for="(bot, index) in config.bots" :key="bot.id">
                     <section class="discord-config-bot" x-data="{ expanded: config.bots.length === 1 || !bot.token }">
                         <div class="discord-bot-header">
@@ -29,27 +29,27 @@
                                 <x-icon :name="expanded ? 'expand_less' : 'expand_more'"></x-icon>
                             </button>
                             <div class="discord-bot-actions">
-                                <span class="discord-bot-status" role="status" x-text="$store.discordConfig.statusLabel(bot)"></span>
-                                <template x-for="control in $store.discordConfig.controlsFor(bot)" :key="control.action === 'restart' ? 'restart' : 'toggle'">
+                                <span class="discord-bot-status" role="status" x-text="$store.discordA0Config.statusLabel(bot)"></span>
+                                <template x-for="control in $store.discordA0Config.controlsFor(bot)" :key="control.action === 'restart' ? 'restart' : 'toggle'">
                                     <button type="button" class="btn btn-action"
-                                        :title="control.label + ($store.discordConfig.disabledReason(bot, control.action) ? ': ' + $store.discordConfig.disabledReason(bot, control.action) : '')"
+                                        :title="control.label + ($store.discordA0Config.disabledReason(bot, control.action) ? ': ' + $store.discordA0Config.disabledReason(bot, control.action) : '')"
                                         :aria-label="control.label + ' - ' + (bot.name || 'New bot')"
-                                        :disabled="!!$store.discordConfig.disabledReason(bot, control.action)"
-                                        @click="$store.discordConfig.action(bot, control.action)">
+                                        :disabled="!!$store.discordA0Config.disabledReason(bot, control.action)"
+                                        @click="$store.discordA0Config.action(bot, control.action)">
                                         <x-icon :name="control.icon"></x-icon>
                                     </button>
                                 </template>
                                 <button type="button" class="btn btn-action delete" title="Remove bot after saving"
                                     :aria-label="'Remove bot - ' + (bot.name || 'New bot')"
-                                    :disabled="!!$store.discordConfig.busyBot"
+                                    :disabled="!!$store.discordA0Config.busyBot"
                                     @click="$confirmClick($event, () => config.bots.splice(index, 1))">
                                     <x-icon name="delete"></x-icon>
                                 </button>
                             </div>
                         </div>
                         <div class="discord-config-body" x-show="expanded">
-                            <div class="field-description" x-show="$store.discordConfig.runtime(bot)?.user"
-                                x-text="($store.discordConfig.runtime(bot)?.user || '') + ' / Servers joined: ' + ($store.discordConfig.runtime(bot)?.guilds || 0)"></div>
+                            <div class="field-description" x-show="$store.discordA0Config.runtime(bot)?.user"
+                                x-text="($store.discordA0Config.runtime(bot)?.user || '') + ' / Servers joined: ' + ($store.discordA0Config.runtime(bot)?.guilds || 0)"></div>
                             <div class="field">
                                 <div class="field-label"><div class="field-title">Bot name</div><div class="field-description">Rename this label without losing existing chats.</div></div>
                                 <div class="field-control"><input type="text" x-model="bot.name" aria-label="Bot name" placeholder="A0 Bug-Sweeper" /></div>
@@ -179,7 +179,7 @@
                             <span class="field-description">Applies immediately when you approve a row. No settings Save is needed.</span>
                         </label>
                         <div class="field-control">
-                            <select aria-label="Approval duration" x-model.number="accessDuration" :disabled="$store.discordConfig.scoped">
+                            <select aria-label="Approval duration" x-model.number="accessDuration" :disabled="$store.discordA0Config.scoped">
                                 <option :value="3600">1 hour</option>
                                 <option :value="28800">8 hours</option>
                                 <option :value="86400">24 hours</option>
@@ -190,10 +190,10 @@
                     <p class="field-description" x-show="accessDuration === 0">
                         <strong>No automatic expiry.</strong> Access persists across restarts until you revoke it. Bot and user allowlists still apply.
                     </p>
-                    <p class="field-description" x-show="!($store.discordConfig.runtime(bot)?.access || []).length">
+                    <p class="field-description" x-show="!($store.discordA0Config.runtime(bot)?.access || []).length">
                         No requests yet. Mention this bot, reply to it, or use /a0 in the intended channel, then refresh.
                     </p>
-                    <template x-for="request in $store.discordConfig.runtime(bot)?.access || []" :key="request.request_id">
+                    <template x-for="request in $store.discordA0Config.runtime(bot)?.access || []" :key="request.request_id">
                         <div class="discord-access-row">
                             <div class="discord-access-identity">
                                 <strong x-text="request.user_name + ' / #' + request.channel_name"></strong>
@@ -201,18 +201,18 @@
                                 <span class="field-description" role="status" x-text="request.status + (request.expires_at === null ? ' / Until revoked' : request.expires_at ? ' / Until ' + new Date(request.expires_at * 1000).toLocaleString() : '')"></span>
                             </div>
                             <div class="discord-bot-actions">
-                                <button type="button" class="btn btn-action discord-access-approve" :title="$store.discordConfig.accessDisabledReason(bot, 'approve') || (request.approved ? 'Renew approval' : 'Approve full agent access')"
+                                <button type="button" class="btn btn-action discord-access-approve" :title="$store.discordA0Config.accessDisabledReason(bot, 'approve') || (request.approved ? 'Renew approval' : 'Approve full agent access')"
                                     :aria-pressed="request.approved.toString()"
                                     :aria-label="(request.approved ? 'Renew approval for ' : 'Approve access for ') + request.user_name + ' in ' + request.channel_name"
-                                    :disabled="!!$store.discordConfig.accessDisabledReason(bot, 'approve') || !request.eligible"
-                                    @click="$confirmClick($event, () => $store.discordConfig.accessAction(bot, request, 'approve', accessDuration))">
+                                    :disabled="!!$store.discordA0Config.accessDisabledReason(bot, 'approve') || !request.eligible"
+                                    @click="$confirmClick($event, () => $store.discordA0Config.accessAction(bot, request, 'approve', accessDuration))">
                                     <x-icon name="check"></x-icon>
                                 </button>
                                 <button type="button" class="btn btn-action discord-access-revoke" title="Revoke agent access"
                                     :aria-pressed="(!request.approved).toString()"
                                     :aria-label="'Revoke access for ' + request.user_name + ' in ' + request.channel_name"
-                                    :disabled="!!$store.discordConfig.accessDisabledReason(bot, 'revoke') || request.expires_at === 0"
-                                    @click="$store.discordConfig.accessAction(bot, request, 'revoke')">
+                                    :disabled="!!$store.discordA0Config.accessDisabledReason(bot, 'revoke') || request.expires_at === 0"
+                                    @click="$store.discordA0Config.accessAction(bot, request, 'revoke')">
                                     <x-icon name="block"></x-icon>
                                 </button>
                             </div>

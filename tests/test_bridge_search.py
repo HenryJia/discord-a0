@@ -1,4 +1,4 @@
-"""Offline check: /opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_bridge_search."""
+"""Offline check: /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_bridge_search."""
 import asyncio
 import json
 from datetime import datetime, timedelta, timezone
@@ -7,7 +7,7 @@ from unittest.mock import Mock
 
 import discord
 
-from usr.plugins.discord.helpers.bridge_reader import BridgeReader
+from usr.plugins.discord_a0.helpers.bridge_reader import BridgeReader
 
 
 async def main():

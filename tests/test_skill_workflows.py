@@ -1,13 +1,13 @@
-"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_skill_workflows."""
+"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_skill_workflows."""
 import asyncio
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
-from usr.plugins.discord.helpers import skill_workflows as workflows
-from usr.plugins.discord import hooks
-from usr.plugins.discord.tools.discord_read import DiscordRead
+from usr.plugins.discord_a0.helpers import skill_workflows as workflows
+from usr.plugins.discord_a0 import hooks
+from usr.plugins.discord_a0.tools.discord_read import DiscordRead
 
 
 async def main():
@@ -26,12 +26,12 @@ async def main():
          patch.object(workflows, "get_discord_config", return_value=config), \
          patch.object(workflows.importlib, "import_module", return_value=SimpleNamespace(DiscordSummarize=factory)) as modules:
         result = await workflows.run_workflow(tool)
-        assert "Load discord-research" in result.message
+        assert "Load discord-a0-research" in result.message
         modules.assert_not_called()
-        loaded.return_value = ["discord-research"]
+        loaded.return_value = ["discord-a0-research"]
         assert await workflows.run_workflow(tool) == "result"
         assert factory.call_args.kwargs["args"]["save_to_memory"] == "false"
-        assert policy.call_args.kwargs["canonical_id"] == "plugin:discord:discord_summarize"
+        assert policy.call_args.kwargs["canonical_id"] == "plugin:discord_a0:discord_summarize"
         policy.return_value = SimpleNamespace(allowed=False)
         assert "blocked" in (await workflows.run_workflow(tool)).message
         assert backend.execute.await_count == 1
@@ -39,15 +39,15 @@ async def main():
         tool.args["operation"] = "__import__"
         assert "Unknown operation" in (await workflows.run_workflow(tool)).message
         tool.args = {"workflow": "monitoring", "operation": "setup_scheduler", "parameters": {"interval": 0}}
-        loaded.return_value = ["discord-alerts"]
+        loaded.return_value = ["discord-a0-alerts"]
         assert "supported interval" in (await workflows.run_workflow(tool)).message
     client = SimpleNamespace(get_guild_members=AsyncMock(return_value=[{
         "user": {"id": "456", "username": "Reporter"}, "roles": [],
     }]), close=AsyncMock())
     reader = DiscordRead(agent=object(), name="discord_read", method=None,
                          args={"action": "members", "guild_id": "123456789012345678"}, message="", loop_data=None)
-    with patch("usr.plugins.discord.tools.discord_read.get_discord_config", return_value=config), \
-         patch("usr.plugins.discord.tools.discord_read.DiscordClient.from_config", return_value=client):
+    with patch("usr.plugins.discord_a0.tools.discord_read.get_discord_config", return_value=config), \
+         patch("usr.plugins.discord_a0.tools.discord_read.DiscordClient.from_config", return_value=client):
         assert "Reporter" in (await reader.execute()).message
         client.close.assert_awaited_once()
         config["servers"] = ["999999999999999999"]
@@ -55,10 +55,10 @@ async def main():
         assert client.get_guild_members.await_count == 1
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        source = root / "plugin" / "skills" / "discord-chat"
+        source = root / "plugin" / "skills" / "discord-a0-chat"
         source.mkdir(parents=True)
         (source / "SKILL.md").write_text("Current Discord skill")
-        retired = root / "a0" / "usr" / "skills" / "discord-testing"
+        retired = root / "a0" / "usr" / "skills" / "discord-a0-testing"
         retired.mkdir(parents=True)
         (retired / "SKILL.md").write_text("Retired testing skill")
         custom = retired.parent / "custom-skill"
@@ -68,7 +68,7 @@ async def main():
             hooks._sync_skills()
         assert not retired.exists(), "Updates must remove the retired plugin-owned testing skill"
         assert custom.is_dir(), "Unrelated user skills must survive migration"
-        assert (custom.parent / "discord-chat" / "SKILL.md").read_text() == "Current Discord skill"
+        assert (custom.parent / "discord-a0-chat" / "SKILL.md").read_text() == "Current Discord skill"
     print("PASS: two-tool baseline, skill gating, policy, reads, scheduler input and retired-skill cleanup")
 
 

@@ -13,8 +13,8 @@ class DiscordBridgeApi(ApiHandler):
         return True
 
     async def process(self, input: dict, request: Request) -> dict | Response:
-        from usr.plugins.discord.helpers.discord_client import get_discord_config
-        from usr.plugins.discord.helpers.discord_bot import (
+        from usr.plugins.discord_a0.helpers.discord_client import get_discord_config
+        from usr.plugins.discord_a0.helpers.discord_bot import (
             get_bot_status, start_chat_bridge, stop_chat_bridge, list_access_requests, set_access_approval,
         )
 

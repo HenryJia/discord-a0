@@ -1,10 +1,10 @@
 import asyncio
 from helpers.tool import Tool, Response
-from usr.plugins.discord.helpers.delivery import bridge_delivery, deliver_message, read_attachments
-from usr.plugins.discord.helpers.discord_client import (
+from usr.plugins.discord_a0.helpers.delivery import bridge_delivery, deliver_message, read_attachments
+from usr.plugins.discord_a0.helpers.discord_client import (
     DiscordClient, DiscordAPIError, get_discord_config,
 )
-from usr.plugins.discord.helpers.sanitize import require_auth, validate_snowflake
+from usr.plugins.discord_a0.helpers.sanitize import require_auth, validate_snowflake
 
 
 class DiscordSend(Tool):
@@ -12,7 +12,7 @@ class DiscordSend(Tool):
 
     async def execute(self, **kwargs) -> Response:
         if self.args.get("action") == "workflow":
-            from usr.plugins.discord.helpers.skill_workflows import run_workflow
+            from usr.plugins.discord_a0.helpers.skill_workflows import run_workflow
             return await run_workflow(self)
         channel_id = self.args.get("channel_id", "")
         content = self.args.get("content", "")

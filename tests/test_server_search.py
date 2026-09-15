@@ -1,4 +1,4 @@
-"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_server_search."""
+"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_server_search."""
 
 import asyncio
 import json
@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock
 
 import discord
 
-from usr.plugins.discord.helpers.bridge_reader import BridgeReader
-from usr.plugins.discord.helpers.discord_bot import ChatBridgeBot
+from usr.plugins.discord_a0.helpers.bridge_reader import BridgeReader
+from usr.plugins.discord_a0.helpers.discord_bot import ChatBridgeBot
 
 
 async def main():

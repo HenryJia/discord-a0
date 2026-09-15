@@ -1,6 +1,10 @@
-# Discord Plugin for Agent Zero
+# Discord A0
 
 Read and communicate in Discord with a small default tool surface. Connect multiple bots to saved Agent Zero conversations, with per-bot presets, agent profiles and access rules.
+
+Standalone repository: [3clyp50/discord-a0](https://github.com/3clyp50/discord-a0).
+Maintained by 3clyp50, derived from [spinnakergit's Discord plugin](https://github.com/spinnakergit/a0-discord).
+Original history and the MIT license are preserved.
 
 ## Two baseline tools
 
@@ -15,20 +19,20 @@ Member reads do not modify the persona registry. The five former standalone tool
 
 | Skill | Load when needed | Reference files |
 | --- | --- | --- |
-| `discord-research` | Structured bulk summaries or insight extraction; ordinary short summaries need no extra model call. | `references/summarize.md`, `references/insights.md` |
-| `discord-alerts` | Watch channels, check new alerts, or explicitly schedule recurring monitoring. | `references/monitoring.md` |
-| `discord-chat` | Administer bot connections and register automatic-reply channels. | `references/bridge.md` |
-| `discord-persona-mapping` | Synchronize or maintain persistent member notes and registry records. | `references/personas.md` |
-| `discord-communicate` | Compose authorized messages, replies and reactions. | `references/messaging.md` |
+| `discord-a0-research` | Structured bulk summaries or insight extraction; ordinary short summaries need no extra model call. | `references/summarize.md`, `references/insights.md` |
+| `discord-a0-alerts` | Watch channels, check new alerts, or explicitly schedule recurring monitoring. | `references/monitoring.md` |
+| `discord-a0-chat` | Administer bot connections and register automatic-reply channels. | `references/bridge.md` |
+| `discord-a0-persona-mapping` | Synchronize or maintain persistent member notes and registry records. | `references/personas.md` |
+| `discord-a0-communicate` | Compose authorized messages, replies and reactions. | `references/messaging.md` |
 
 Load the skill with `skills_tool`, then open only the reference needed for the request:
 
 ```json
-{"tool_name":"skills_tool","tool_args":{"action":"load","skill_name":"discord-research"}}
+{"tool_name":"skills_tool","tool_args":{"action":"load","skill_name":"discord-a0-research"}}
 ```
 
 ```json
-{"tool_name":"skills_tool","tool_args":{"action":"read_file","skill_name":"discord-research","file_path":"references/summarize.md"}}
+{"tool_name":"skills_tool","tool_args":{"action":"read_file","skill_name":"discord-a0-research","file_path":"references/summarize.md"}}
 ```
 
 The reference documents calls through `discord_send` with `action: workflow`, `workflow`, `operation`, and a `parameters` object. Workflow names and operations are allowlisted; arbitrary Python imports or tool names are not accepted. The matching skill must be loaded in the current chat. Both the write tool's policy and explicit legacy backend policy blocks remain enforced.
@@ -39,7 +43,9 @@ The current chat's bot is used for research, monitoring and personas; ordinary A
 
 ## Install and configure
 
-Install this repository with Agent Zero's plugin installer. The standalone plugin belongs under `usr/plugins/discord`. Lifecycle hooks prepare dependencies and mirror the bundled skills, including nested reference files, into `usr/skills/`. Updates refresh these skill files without rerunning dependency setup.
+Install `https://github.com/3clyp50/discord-a0` with Agent Zero's Plugin Installer. The plugin ID is `discord_a0` and its directory is `usr/plugins/discord_a0`. Lifecycle hooks prepare dependencies and mirror the namespaced `discord-a0-*` skills, including nested reference files, into `usr/skills/`. Updates refresh these skill files without rerunning dependency setup.
+
+Stop and disable the older Discord integration before enabling this version, especially when reusing a bot token. Both integrations expose the same public tool names. Settings, approvals and chat mappings are not imported automatically; existing chats are not deleted. Reconfigure bots here and grant fresh approvals where needed.
 
 For each Discord bot:
 
@@ -70,14 +76,14 @@ See [Chat Bridge Guide](docs/CHAT_BRIDGE.md) for dates, coverage, access approva
 - The normal agent tools and skill workflows run with the trusted Agent Zero operator's privileges and configured accounts. They are not a replacement for the stricter Discord member-scoped reader.
 - Full Discord agent access requires an explicit Web UI approval for the exact bot, server, user and channel. It grants tools, local files, code execution and external writes. Approve only trusted users and keep server/user allowlists narrow.
 - Approve and revoke access in Config > Agent access. Choose 1 hour (default), 8 hours, 24 hours, or Until revoked for permanent access. All approvals survive restarts; permanent approvals have no automatic expiry. No key is sent through Discord. Revoking blocks new requests, not a task already running. Loading a skill never grants approval.
-- Tool-policy blocks are retained for the former names (`plugin:discord:discord_poll`, etc.). Allowing `discord_send` alone does not override a blocked workflow backend.
+- Tool-policy blocks are retained for the former names (`plugin:discord_a0:discord_poll`, etc.). Allowing `discord_send` alone does not override a blocked workflow backend.
 - Credentials and runtime files under `config.json` and `data/` are not distribution assets. Do not overwrite them during deployment.
 
 ## Upgrade from seven tools
 
 Use live member operations through `discord_read` (`members` / `member`). Load the appropriate skill for the other capabilities; old `discord_chat`, `discord_members`, `discord_poll`, `discord_summarize` and `discord_insights` calls are no longer public tool calls.
 
-New monitoring tasks load `discord-alerts` and invoke the documented workflow. Existing custom or scheduled prompts that directly call the old tool names must be updated; the plugin does not silently rewrite operator-authored tasks. Existing state and saved chats are retained.
+New monitoring tasks load `discord-a0-alerts` and invoke the documented workflow. Existing custom or scheduled prompts that directly call the old tool names must be updated; the plugin does not silently rewrite operator-authored tasks. Existing state and saved chats are retained.
 
 Config is the only plugin page. Bot rows use Agent Zero's fields, icon buttons and notifications. Shared User Account, Memory, Persona and Alert Polling settings are always visible, without an Advanced accordion. Status refreshes while the modal is open and stops when it closes. Scoped settings cannot operate global bridge controls.
 
@@ -86,10 +92,10 @@ Config is the only plugin page. Bot rows use Agent Zero's fields, icon buttons a
 From `/a0`, use the framework interpreter:
 
 ```bash
-/opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_skill_workflows
-/opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_bridge_search
-/opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_bridge_reader
-/opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_multi_bot
+/opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_skill_workflows
+/opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_bridge_search
+/opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_bridge_reader
+/opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_multi_bot
 ```
 
 These are offline checks; they do not establish live Discord or model-provider behavior.

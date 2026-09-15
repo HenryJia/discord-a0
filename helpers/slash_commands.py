@@ -117,7 +117,7 @@ class DiscordCommands:
                     raise ValueError('Stop the active run before creating a new chat.')
                 target = AgentContext(deepcopy(context.config), name='Discord: new chat')
                 target.data.update({key: deepcopy(value) for key, value in context.data.items()
-                                    if key in {'discord_bot_id', 'discord_channel_id', 'chat_model_override'}})
+                                    if key in {'discord_a0_bot_id', 'discord_a0_channel_id', 'chat_model_override'}})
                 project = projects.get_context_project_name(context)
                 if project:
                     projects.activate_project(target.id, project)
@@ -183,9 +183,9 @@ class DiscordCommands:
         return [item for item in AgentContext.all() if self._same_channel(context, item)]
 
     def _same_channel(self, context, target):
-        return bool(target and context.data.get('discord_channel_id')
-                    and target.data.get('discord_channel_id') == context.data['discord_channel_id']
-                    and target.data.get('discord_bot_id') == self.bot.bot_id)
+        return bool(target and context.data.get('discord_a0_channel_id')
+                    and target.data.get('discord_a0_channel_id') == context.data['discord_a0_channel_id']
+                    and target.data.get('discord_a0_bot_id') == self.bot.bot_id)
 
     async def session_menu(self, context, args):
         rows, label = _page(self._sessions(context), args)
@@ -201,7 +201,7 @@ class DiscordCommands:
         self._activate_session(target)
 
     def _activate_session(self, target):
-        from usr.plugins.discord.helpers.discord_bot import set_context_id
+        from usr.plugins.discord_a0.helpers.discord_bot import set_context_id
         save_tmp_chat(target)
         set_context_id(str(self.message.channel.id), target.id, self.bot.bot_id)
         self.context = target
@@ -213,7 +213,7 @@ class DiscordCommands:
             if len(parts) == 2 and parts[1] in {'on', 'off'}:
                 plugin = parts[0]
                 meta = plugins.get_plugin_meta(plugin) if plugin in names else None
-                if not meta or meta.always_enabled or plugin in {'_commands', 'discord'}:
+                if not meta or meta.always_enabled or plugin in {'_commands', 'discord_a0'}:
                     raise ValueError('That plugin cannot be changed here.')
                 if context.is_running():
                     raise ValueError('Stop the active run before changing plugins.')

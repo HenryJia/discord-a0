@@ -1,6 +1,6 @@
 # monitoring: check
 
-Load the **discord-alerts** skill before calling this workflow. The old `discord_poll` name is a backend identifier, not a callable public tool.
+Load the **discord-a0-alerts** skill before calling this workflow. The old `discord_poll` name is a backend identifier, not a callable public tool.
 
 Use this complete invocation:
 

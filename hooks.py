@@ -40,7 +40,7 @@ def _sync_skills():
     source = _get_plugin_dir() / "skills"
     destination = _get_a0_root() / "usr" / "skills"
     # Verification now belongs to core guidance and per-bot instructions.
-    retired = destination / "discord-testing"
+    retired = destination / "discord-a0-testing"
     if retired.exists():
         shutil.rmtree(retired)
     for skill_dir in source.iterdir():
@@ -58,7 +58,7 @@ def install(**kwargs):
     """Post-install hook: set up data dir, deps, skills, toggle."""
     plugin_dir = _get_plugin_dir()
     a0_root = _get_a0_root()
-    plugin_name = "discord"
+    plugin_name = "discord_a0"
 
     logger.info("Running post-install hook...")
 
@@ -121,7 +121,7 @@ def install(**kwargs):
 def save_plugin_config(settings: dict, **kwargs) -> dict:
     """Validate bot settings; agent approvals are managed separately in the Web UI."""
     import re
-    from usr.plugins.discord.helpers.discord_client import get_bot_configs, resolve_agent_profile
+    from usr.plugins.discord_a0.helpers.discord_client import get_bot_configs, resolve_agent_profile
 
     bots = get_bot_configs(settings)
     if not isinstance(bots, list):
@@ -171,13 +171,13 @@ def save_plugin_config(settings: dict, **kwargs) -> dict:
 def uninstall(**kwargs):
     """Pre-uninstall hook: clean up skills."""
     a0_root = _get_a0_root()
-    plugin_name = "discord"
+    plugin_name = "discord_a0"
 
     logger.info("Running uninstall hook...")
 
     # Remove skills
     skills_dst = a0_root / "usr" / "skills"
-    for skill_name in ['discord-alerts', 'discord-chat', 'discord-communicate', 'discord-persona-mapping', 'discord-research', 'discord-testing']:
+    for skill_name in ['discord-a0-alerts', 'discord-a0-chat', 'discord-a0-communicate', 'discord-a0-persona-mapping', 'discord-a0-research', 'discord-a0-testing']:
         skill_path = skills_dst / skill_name
         if skill_path.is_dir():
             import shutil

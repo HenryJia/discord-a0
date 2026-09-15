@@ -3,15 +3,15 @@ import time
 import aiohttp
 from pathlib import Path
 from helpers.tool import Tool, Response
-from usr.plugins.discord.helpers.discord_client import (
+from usr.plugins.discord_a0.helpers.discord_client import (
     DiscordClient, DiscordAPIError, format_messages, get_discord_config,
     get_modes_to_try,
 )
-from usr.plugins.discord.helpers.poll_state import (
+from usr.plugins.discord_a0.helpers.poll_state import (
     get_last_message_id, set_last_message_id, record_alert,
     add_watch_channel, remove_watch_channel, get_watch_channels,
 )
-from usr.plugins.discord.helpers.sanitize import (
+from usr.plugins.discord_a0.helpers.sanitize import (
     sanitize_content, sanitize_username, sanitize_filename, require_auth,
     validate_snowflake, validate_image_url,
 )
@@ -335,7 +335,7 @@ class DiscordPoll(Tool):
                 name=f"Discord Alert Poll (every {interval_min}min)",
                 system_prompt=(
                     "You are monitoring Discord channels for new alerts. "
-                    "First load discord-alerts with skills_tool (action load, skill_name discord-alerts). "
+                    "First load discord-a0-alerts with skills_tool (action load, skill_name discord-a0-alerts). "
                     "Read its references/monitoring.md when needed. Then call discord_send with "
                     "action workflow, workflow monitoring, operation check, parameters {}. "
                     "If alerts are found, summarize them concisely. "

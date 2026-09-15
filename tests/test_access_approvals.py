@@ -1,4 +1,4 @@
-"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord.tests.test_access_approvals."""
+"""Offline: /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_access_approvals."""
 import asyncio
 import json
 import tempfile
@@ -8,8 +8,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from usr.plugins.discord.helpers import discord_bot as bridge
-from usr.plugins.discord.api.discord_bridge_api import DiscordBridgeApi
+from usr.plugins.discord_a0.helpers import discord_bot as bridge
+from usr.plugins.discord_a0.api.discord_bridge_api import DiscordBridgeApi
 
 
 async def main():
@@ -29,7 +29,7 @@ async def main():
         with tempfile.TemporaryDirectory() as tmp, \
              patch.object(bridge, "_get_state_path", return_value=Path(tmp) / "state.json"), \
              patch.object(bot, "_get_config", return_value=config), \
-             patch("usr.plugins.discord.helpers.discord_client.get_discord_config", return_value=config), \
+             patch("usr.plugins.discord_a0.helpers.discord_client.get_discord_config", return_value=config), \
              patch.object(bot, "_get_agent_response", new_callable=AsyncMock, return_value="read only") as restricted, \
              patch.object(bot, "_get_full_agent_response", new_callable=AsyncMock, return_value="full agent") as full:
             assert DiscordBridgeApi.requires_auth() and DiscordBridgeApi.requires_csrf()

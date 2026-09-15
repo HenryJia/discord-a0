@@ -12,7 +12,7 @@ class DiscordTest(ApiHandler):
         return True
 
     async def process(self, input: dict, request: Request) -> dict | Response:
-        from usr.plugins.discord.helpers.discord_client import DiscordClient, get_discord_config
+        from usr.plugins.discord_a0.helpers.discord_client import DiscordClient, get_discord_config
         client = None
         try:
             config = get_discord_config(bot_id=input.get("bot_id"))

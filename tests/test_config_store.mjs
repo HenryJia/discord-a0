@@ -77,7 +77,7 @@ test("bot controls use saved IDs, preserve drafts, reject scoped actions and sto
 
     const request = { request_id: "789:456:101", eligible: true };
     await store.accessAction(second, request, "approve", 3600);
-    assert.deepEqual(calls.at(-1), { url: "/plugins/discord/discord_bridge_api", action: "approve", bot_id: "second", request_id: request.request_id, duration: 3600 });
+    assert.deepEqual(calls.at(-1), { url: "/plugins/discord_a0/discord_bridge_api", action: "approve", bot_id: "second", request_id: request.request_id, duration: 3600 });
     await store.accessAction(second, request, "approve", 0);
     assert.equal(calls.at(-1).duration, 0, "Until revoked must not become the default duration");
     const accessCalls = calls.length;

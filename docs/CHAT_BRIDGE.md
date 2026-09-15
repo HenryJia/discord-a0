@@ -10,7 +10,7 @@ New chats use the bot's configured preset and agent profile. Existing chats reta
 
 Use **Config** for individual bot status, Start/Stop and Restart icons, tokens, labels, access rules, presets and profiles. There is no separate Open dashboard. Saved auto-start settings are picked up by the job loop; Stop pauses auto-start until manual Start or an Agent Zero restart.
 
-For agent-driven operations, load `discord-chat` and read [its bridge reference](../skills/discord-chat/references/bridge.md). Calls use the skill-gated administration workflow through `discord_send`, with the stable `bot_id` inside `parameters`. The old `discord_chat` tool is no longer exposed.
+For agent-driven operations, load `discord-a0-chat` and read [its bridge reference](../skills/discord-a0-chat/references/bridge.md). Calls use the skill-gated administration workflow through `discord_send`, with the stable `bot_id` inside `parameters`. The old `discord_chat` tool is no longer exposed.
 
 Register a channel only to receive replies to every message. Unregistering removes its bridge mapping, not its saved Agent Zero chat. Bot labels can change without losing their stable IDs. Legacy single-bot mappings remain under `default`.
 
@@ -127,6 +127,6 @@ Commands that open WebUI-only settings provide a WebUI handoff. Host computer pe
 
 ## Monitoring and research skills
 
-Use [discord-research](../skills/discord-research/SKILL.md) for optional structured bulk analysis, [discord-alerts](../skills/discord-alerts/SKILL.md) for monitoring, and [discord-persona-mapping](../skills/discord-persona-mapping/SKILL.md) for persistent notes. Their reference files load on demand, not into every baseline prompt.
+Use [discord-a0-research](../skills/discord-a0-research/SKILL.md) for optional structured bulk analysis, [discord-a0-alerts](../skills/discord-a0-alerts/SKILL.md) for monitoring, and [discord-a0-persona-mapping](../skills/discord-a0-persona-mapping/SKILL.md) for persistent notes. Their reference files load on demand, not into every baseline prompt.
 
 Existing scheduled prompts that call removed public tool names must be updated to load the corresponding skill and invoke its workflow. New monitoring tasks do this automatically. Monitoring/persona storage remains plugin-wide; per-bot chat history and access approvals remain separate.
