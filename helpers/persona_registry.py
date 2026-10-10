@@ -101,9 +101,12 @@ def get_guild_users(guild_id: str) -> list[dict]:
 
 
 def format_user_profile(user_data: dict) -> str:
-    lines = [f"Username: {user_data.get('username', 'Unknown')}"]
+    from usr.plugins.discord_a0.helpers.sanitize import sanitize_content, sanitize_username
+    # Stored names and notes come from Discord or operator input; sanitize on
+    # output so no record can inject instructions into model context.
+    lines = [f"Username: {sanitize_username(user_data.get('username', 'Unknown'))}"]
     if user_data.get("display_name"):
-        lines.append(f"Display Name: {user_data['display_name']}")
+        lines.append(f"Display Name: {sanitize_username(user_data['display_name'])}")
     if user_data.get("user_id"):
         lines.append(f"User ID: {user_data['user_id']}")
     if user_data.get("last_seen"):
@@ -114,8 +117,8 @@ def format_user_profile(user_data: dict) -> str:
         lines.append("Servers:")
         for gid, ginfo in guilds.items():
             roles = ginfo.get("roles", [])
-            lines.append(f"  - Guild {gid}: roles=[{', '.join(roles)}]")
+            lines.append(f"  - Guild {gid}: roles=[{', '.join(sanitize_username(str(role)) for role in roles)}]")
 
     if user_data.get("notes"):
-        lines.append(f"Notes: {user_data['notes']}")
+        lines.append(f"Notes: {sanitize_content(user_data['notes'])}")
     return "\n".join(lines)
