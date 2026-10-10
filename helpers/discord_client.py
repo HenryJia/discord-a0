@@ -142,10 +142,14 @@ class DiscordClient:
         if self._session and not self._session.closed:
             await self._session.close()
 
-    async def _request(self, method: str, endpoint: str, *, files=None, **kwargs) -> dict | list | None:
+    MAX_RATE_LIMIT_RETRIES = 5
+
+    async def _request(self, method: str, endpoint: str, *, files=None, _retries=None, **kwargs) -> dict | list | None:
         await self._ensure_session()
         url = f"{DISCORD_API_BASE}{endpoint}"
         bucket = f"{method}:{endpoint.split('?')[0]}"
+        if _retries is None:
+            _retries = self.MAX_RATE_LIMIT_RETRIES
 
         await self._rate_limiter.wait(bucket)
 
@@ -164,9 +168,12 @@ class DiscordClient:
             if resp.status == 204:
                 return None
             if resp.status == 429:
+                if _retries <= 0:
+                    body = await resp.text()
+                    raise DiscordAPIError(resp.status, body, endpoint)
                 retry_after = (await resp.json()).get("retry_after", 1.0)
                 await asyncio.sleep(retry_after)
-                return await self._request(method, endpoint, files=files, **kwargs)
+                return await self._request(method, endpoint, files=files, _retries=_retries - 1, **kwargs)
             if resp.status >= 400:
                 body = await resp.text()
                 raise DiscordAPIError(resp.status, body, endpoint)
