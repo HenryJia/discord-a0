@@ -208,7 +208,9 @@ class DiscordPoll(Tool):
             # Download image bytes with size limit (10 MB)
             MAX_IMAGE_BYTES = 10 * 1024 * 1024
             async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                # Do not follow redirects: only the validated CDN URL is fetched,
+                # so a 3xx cannot repoint the request at another host.
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=30), allow_redirects=False) as resp:
                     if resp.status != 200:
                         return False
                     if int(resp.headers.get("Content-Length", 0)) > MAX_IMAGE_BYTES:
