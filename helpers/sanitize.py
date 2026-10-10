@@ -279,9 +279,16 @@ def validate_image_url(url: str) -> bool:
     try:
         from urllib.parse import urlparse
         parsed = urlparse(url)
-        if parsed.scheme not in ("https", "http"):
+        if parsed.scheme != "https":
             return False
         if parsed.hostname not in _ALLOWED_IMAGE_HOSTS:
+            return False
+        # Discord serves media on 443 only; reject any explicit alternate port
+        # so the allowlist cannot be redirected to an internal service.
+        try:
+            if parsed.port not in (None, 443):
+                return False
+        except ValueError:
             return False
         return True
     except Exception:
