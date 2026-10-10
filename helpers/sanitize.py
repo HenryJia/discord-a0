@@ -215,11 +215,16 @@ def sanitize_filename(name: str, max_length: int = MAX_FILENAME) -> str:
     """Sanitize an attachment filename."""
     if not name:
         return "file"
+    name = _normalize_text(name)
     name = name[:max_length]
     # Strip path traversal
     name = name.replace("/", "_").replace("\\", "_").replace("..", "_")
     # Remove newlines
     name = name.replace("\n", "").replace("\r", "")
+    # Escape delimiter tags and neutralise injection phrases, as every other
+    # sanitizer does, so a crafted filename cannot spoof our wrappers.
+    name = _DELIMITER_RE.sub(_escape_tag, name)
+    name = _INJECTION_RE.sub("[blocked]", name)
     return name
 
 
