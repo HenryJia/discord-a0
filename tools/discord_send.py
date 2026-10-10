@@ -89,6 +89,7 @@ class DiscordSend(Tool):
                 message_id = self.args.get("message_id", "")
                 if not emoji or not message_id:
                     return Response(message="Error: emoji and message_id required for reactions.", break_loop=False)
+                message_id = validate_snowflake(message_id, "message_id")
                 await client.add_reaction(channel_id, message_id, emoji)
                 await client.close()
                 return Response(message=f"Reaction {emoji} added to message {message_id}.", break_loop=False)
