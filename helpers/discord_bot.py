@@ -15,6 +15,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import threading
 import time
 from datetime import datetime, timezone
@@ -177,6 +178,8 @@ class ChatBridgeBot(discord.Client):
     MAX_READ_LEDGER_ENTRIES = 96
     MAX_READ_LEDGER_PROMPT_ENTRIES = 18
     MAX_READ_LEDGER_PROMPT_CHARS = 8000
+    # Largest attachment accepted into agent input (Discord's default limit).
+    MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024
     # Rate limit: max messages per user within the window
     RATE_LIMIT_MAX = 10
     RATE_LIMIT_WINDOW = 60  # seconds
@@ -739,10 +742,14 @@ class ChatBridgeBot(discord.Client):
             temp_files: list[str] = []
             for att in message.attachments:
                 if att.content_type and att.content_type.startswith("image/"):
+                    if att.size and att.size > self.MAX_ATTACHMENT_BYTES:
+                        continue
                     try:
                         import tempfile
                         img_bytes = await att.read()
-                        suffix = Path(att.filename).suffix or ".png"
+                        if len(img_bytes) > self.MAX_ATTACHMENT_BYTES:
+                            continue
+                        suffix = Path(att.filename).suffix if re.fullmatch(r"\.[A-Za-z0-9]{1,8}", Path(att.filename).suffix or "") else ".png"
                         tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
                         tmp.write(img_bytes)
                         tmp.close()
