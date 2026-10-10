@@ -32,52 +32,9 @@ Test the Discord connection using the configured token.
 
 ## Configuration
 
-### `GET /api/plugins/discord_a0/discord_config_api`
+Plugin configuration is edited through Agent Zero's **Settings > Discord** page (`webui/config.html`), not through a plugin REST endpoint. This fork does not expose a `discord_config_api` handler. Bot rows, tokens, allowlists, presets and profiles are validated by the plugin's `save_plugin_config` hook and written through the framework settings store.
 
-Get the current plugin configuration. Tokens are masked for security (first 4 + last 4 characters shown).
-
-**Response:**
-```json
-{
-  "bot": {
-    "token": "MTIz...wxyz"
-  },
-  "user": {
-    "token": "",
-    "read_only": true
-  },
-  "servers": ["1234567890123456789"],
-  "defaults": {
-    "message_limit": 100,
-    "insight_limit": 200,
-    "member_sync_limit": 1000
-  },
-  "memory": {
-    "auto_save_summaries": true,
-    "auto_save_insights": true,
-    "export_format": "markdown"
-  },
-  "persona": {
-    "auto_sync_on_read": false,
-    "track_activity": true
-  }
-}
-```
-
-### `POST /api/plugins/discord_a0/discord_config_api`
-
-Update the plugin configuration. Masked tokens (containing `...`) are preserved from the existing config to prevent accidental overwrites.
-
-**Note:** These API endpoints have CSRF protection disabled, so they can be called directly with `curl` or `fetch()` without needing a CSRF token.
-
-**Request body:** Same shape as the GET response, with actual token values.
-
-**Response:**
-```json
-{
-  "ok": true
-}
-```
+All plugin API handlers require authentication and CSRF protection. `requires_auth()` and `requires_csrf()` both default to `True` and are not overridden to disable them.
 
 ---
 
@@ -106,7 +63,7 @@ The plugin tracks Discord's rate limit headers (`X-RateLimit-Remaining`, `X-Rate
 
 ### Pagination
 
-Message fetching supports automatic pagination for limits exceeding 100 (Discord's per-request maximum). The `get_all_channel_messages()` method batches requests using the `before` parameter until the requested limit is reached or no more messages are available.
+Message fetching paginates automatically for limits above 100 (Discord's per-request maximum). Discord returns each page newest-first: `get_all_channel_messages()` advances an `after` cursor to the newest id of the page and prepends, otherwise walks older pages with `before`. The result stays newest-first either way.
 
 ---
 
@@ -134,7 +91,7 @@ The persona registry is stored at `data/persona_registry.json` within the plugin
 }
 ```
 
-Notes are append-only — calling `discord_members` with `action: note` adds to existing notes rather than replacing them. Duplicate notes are detected and skipped.
+Notes are append-only. Load the `discord-a0-persona-mapping` skill and call `discord_send` with `action: workflow`, `workflow: personas`, `operation: note`; duplicate notes are detected and skipped. The old `discord_members` name is a backend identifier, not a callable public tool.
 
 ---
 
@@ -202,7 +159,7 @@ To reset a single channel, remove its entry from the `channels` object in the JS
 
 ## Image Analysis Pipeline
 
-When the `discord_poll` tool encounters image attachments in alerts, it processes them through this pipeline:
+When the monitoring workflow (`discord-a0-alerts`) encounters image attachments in alerts, it processes them through this pipeline:
 
 ```
 Discord Message (with attachment)
@@ -330,7 +287,7 @@ To reset a single channel's conversation (start fresh), remove its entry from th
 
 Saved memory entries include metadata for retrieval:
 - `area`: `"main"`
-- `source`: `"discord_summarize"`, `"discord_insights"`, or `"discord_poll"`
+- `source`: workflow backend identifiers `"discord_summarize"`, `"discord_insights"` or `"discord_poll"` (not public tool names)
 
 ### Fallback Storage
 
