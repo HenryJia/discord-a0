@@ -215,23 +215,32 @@ class DiscordClient:
     async def get_all_channel_messages(
         self, channel_id: str, limit: int = 200, after: Optional[str] = None,
     ) -> list:
-        """Fetch up to `limit` messages with automatic pagination."""
+        """Fetch up to `limit` messages with automatic pagination.
+
+        Discord returns each page newest-first. With an ``after`` cursor we
+        walk forward (newer pages arrive later, so they are prepended);
+        otherwise we walk backward. The result stays newest-first either way.
+        """
         all_messages = []
-        before_id = None
+        cursor = after
 
         while len(all_messages) < limit:
             batch_size = min(100, limit - len(all_messages))
             params = f"?limit={batch_size}"
-            if before_id:
-                params += f"&before={before_id}"
-            if after and not before_id:
-                params += f"&after={_seg(after)}"
+            if cursor and after:
+                params += f"&after={_seg(cursor)}"
+            elif cursor:
+                params += f"&before={_seg(cursor)}"
 
             batch = await self._request("GET", f"/channels/{_seg(channel_id)}/messages{params}")
             if not batch:
                 break
-            all_messages.extend(batch)
-            before_id = batch[-1]["id"]
+            if after:
+                all_messages = batch + all_messages
+                cursor = batch[0]["id"]
+            else:
+                all_messages.extend(batch)
+                cursor = batch[-1]["id"]
             if len(batch) < batch_size:
                 break
 
