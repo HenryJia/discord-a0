@@ -3,7 +3,9 @@ from usr.plugins.discord_a0.helpers.discord_client import (
     DiscordClient, DiscordAPIError, format_messages, get_discord_config,
     get_modes_to_try,
 )
-from usr.plugins.discord_a0.helpers.sanitize import require_auth, sanitize_channel_name
+from usr.plugins.discord_a0.helpers.sanitize import (
+    require_auth, sanitize_channel_name, validate_snowflake,
+)
 
 
 class DiscordRead(Tool):
@@ -30,6 +32,17 @@ class DiscordRead(Tool):
                 raise ValueError("Server is not in this bot's allowed servers list.")
             if action == "member" and not self.args.get("user_id"):
                 raise ValueError("user_id is required for member lookup.")
+            # Validate IDs at the tool boundary before they reach API paths.
+            if guild_id:
+                guild_id = validate_snowflake(guild_id, "guild_id")
+            if target_id:
+                target_id = validate_snowflake(target_id, "channel_id or thread_id")
+            user_id = str(self.args.get("user_id", "") or "")
+            if user_id:
+                user_id = validate_snowflake(user_id, "user_id")
+            after = str(self.args.get("after", "") or "")
+            if after:
+                after = validate_snowflake(after, "after")
             modes = get_modes_to_try(config, self.args.get("mode") or None)
         except (ValueError, TypeError) as exc:
             return Response(message=f"Discord read: {exc}", break_loop=False)
@@ -44,10 +57,10 @@ class DiscordRead(Tool):
                     data = await client.get_active_threads(guild_id)
                     text = _format_threads(data.get("threads", []))
                 elif action == "members":
-                    members = await client.get_guild_members(guild_id, limit=limit, after=str(self.args.get("after") or "0"))
+                    members = await client.get_guild_members(guild_id, limit=limit, after=after or "0")
                     text = _format_members(members, guild_id)
                 elif action == "member":
-                    member = await client.get_guild_member(guild_id, str(self.args["user_id"]))
+                    member = await client.get_guild_member(guild_id, user_id)
                     text = _format_members([member], guild_id)
                 else:
                     if allowed:
@@ -55,7 +68,7 @@ class DiscordRead(Tool):
                         if str(channel.get("guild_id", "")) not in allowed:
                             raise ValueError("Channel is not in this bot's allowed servers list.")
                     messages = await client.get_all_channel_messages(
-                        channel_id=target_id, limit=limit, after=self.args.get("after") or None,
+                        channel_id=target_id, limit=limit, after=after or None,
                     )
                     text = (f"Retrieved {len(messages)} messages from {target_id}:\n\n" + format_messages(messages, include_ids=True)
                             if messages else "No messages found in the specified channel/thread.")
