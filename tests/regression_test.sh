@@ -152,7 +152,7 @@ with open('/a0/usr/plugins/discord_a0/plugin.yaml') as f:
     d = yaml.safe_load(f)
 print(d.get('title', ''))
 " 2>/dev/null)
-if [ "$TITLE" = "Discord Integration" ]; then
+if [ "$TITLE" = "Discord A0" ]; then
     pass "T2.4 plugin.yaml valid (title: $TITLE)"
 else
     fail "T2.4 plugin.yaml" "Title: '$TITLE'"
@@ -231,21 +231,21 @@ else
     fail "T4.1 Discord test endpoint" "$ERROR"
 fi
 
-# T4.2: Config API — GET
-RESPONSE=$(api "discord_config_api")
-HAS_BOT=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print('yes' if 'bot' in d else 'no')" 2>/dev/null)
-if [ "$HAS_BOT" = "yes" ]; then
-    pass "T4.2 Config API GET returns config with bot section"
+# T4.2: Bridge API — status lists configured bots
+RESPONSE=$(api "discord_bridge_api" '{"action":"status"}')
+HAS_BOTS=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print('yes' if isinstance(d.get('bots'), list) else 'no')" 2>/dev/null)
+if [ "$HAS_BOTS" = "yes" ]; then
+    pass "T4.2 Bridge API status lists configured bots"
 else
-    fail "T4.2 Config API GET" "Response: $RESPONSE"
+    fail "T4.2 Bridge API status" "Response: $RESPONSE"
 fi
 
-# T4.3: Config API — token is masked
-MASKED=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('bot',{}).get('token',''); print('yes' if '****' in t else 'no')" 2>/dev/null)
-if [ "$MASKED" = "yes" ]; then
-    pass "T4.3 Config API masks bot token in response"
+# T4.3: Bridge API — status never exposes tokens
+NO_SECRETS=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print('yes' if 'token' not in json.dumps(d).lower() else 'no')" 2>/dev/null)
+if [ "$NO_SECRETS" = "yes" ]; then
+    pass "T4.3 Bridge API status exposes no tokens"
 else
-    fail "T4.3 Config API token masking" "Token not masked"
+    fail "T4.3 Bridge API token exposure" "Token field present in status response"
 fi
 
 # T4.4: Bridge API — status
@@ -540,17 +540,16 @@ fi
 section "11. Security Hardening Checks"
 # ============================================================
 
-# T11.1: Restricted mode system prompt exists and constrains tool access
+# T11.1: Read-only bridge prompt restricts the model to discord_read only
 RESULT=$(container_python "
-from usr.plugins.discord_a0.helpers.discord_bot import ChatBridgeBot
-prompt = ChatBridgeBot.CHAT_SYSTEM_PROMPT
-has_no_tools = 'no access to tools' in prompt.lower() or 'no tool' in prompt.lower()
-print('ok' if has_no_tools else 'missing')
+from pathlib import Path
+prompt = Path('/a0/usr/plugins/discord_a0/prompts/discord.bridge.md').read_text()
+print('ok' if 'only discord_read executes' in prompt else 'missing')
 " 2>&1)
 if echo "$RESULT" | grep -q "ok"; then
-    pass "T11.1 Restricted mode system prompt denies tool access"
+    pass "T11.1 Read-only bridge prompt restricts the model to discord_read"
 else
-    fail "T11.1 Restricted mode prompt" "$RESULT"
+    fail "T11.1 Read-only bridge prompt" "$RESULT"
 fi
 
 # T11.2: Approval management retains Web UI authentication and CSRF
