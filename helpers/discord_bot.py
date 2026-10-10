@@ -180,6 +180,11 @@ class ChatBridgeBot(discord.Client):
     MAX_READ_LEDGER_PROMPT_CHARS = 8000
     # Largest attachment accepted into agent input (Discord's default limit).
     MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024
+    # Non-image document types forwarded to the approved agent input.
+    DOCUMENT_EXTENSIONS = {
+        ".pdf", ".txt", ".md", ".markdown", ".csv", ".json", ".yaml", ".yml",
+        ".xml", ".html", ".htm", ".log", ".docx", ".xlsx", ".pptx",
+    }
     # Rate limit: max messages per user within the window
     RATE_LIMIT_MAX = 10
     RATE_LIMIT_WINDOW = 60  # seconds
@@ -736,27 +741,31 @@ class ChatBridgeBot(discord.Client):
             # Approved requests enter the normal agent loop; tool policy still applies.
             prefixed_text = safe_text
 
-            # Handle image attachments for the agent. Track temp files per request
-            # so concurrent channels cannot delete each other's in-flight images.
+            # Forward image and document attachments into agent input. Track temp
+            # files per request so concurrent channels cannot delete each other's.
             attachment_paths = []
             temp_files: list[str] = []
             for att in message.attachments:
-                if att.content_type and att.content_type.startswith("image/"):
-                    if att.size and att.size > self.MAX_ATTACHMENT_BYTES:
+                filename = att.filename or "attachment"
+                is_image = bool(att.content_type and att.content_type.startswith("image/"))
+                is_document = Path(filename).suffix.lower() in self.DOCUMENT_EXTENSIONS
+                if not (is_image or is_document):
+                    continue
+                if att.size and att.size > self.MAX_ATTACHMENT_BYTES:
+                    continue
+                try:
+                    import tempfile
+                    data = await att.read()
+                    if len(data) > self.MAX_ATTACHMENT_BYTES:
                         continue
-                    try:
-                        import tempfile
-                        img_bytes = await att.read()
-                        if len(img_bytes) > self.MAX_ATTACHMENT_BYTES:
-                            continue
-                        suffix = Path(att.filename).suffix if re.fullmatch(r"\.[A-Za-z0-9]{1,8}", Path(att.filename).suffix or "") else ".png"
-                        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
-                        tmp.write(img_bytes)
-                        tmp.close()
-                        attachment_paths.append(tmp.name)
-                        temp_files.append(tmp.name)
-                    except Exception:
-                        pass
+                    suffix = Path(filename).suffix if re.fullmatch(r"\.[A-Za-z0-9]{1,8}", Path(filename).suffix or "") else (".png" if is_image else ".txt")
+                    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+                    tmp.write(data)
+                    tmp.close()
+                    attachment_paths.append(tmp.name)
+                    temp_files.append(tmp.name)
+                except Exception:
+                    pass
 
             if not self._has_tool_access(str(message.author.id), channel_id, guild_id):
                 self._cleanup_temp_files(temp_files)
