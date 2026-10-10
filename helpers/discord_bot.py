@@ -200,8 +200,6 @@ class ChatBridgeBot(discord.Client):
         from usr.plugins.discord_a0.helpers.native_commands import create_tree
         self.command_tree = create_tree(self)
         self.commands_registered = False
-        # Temporary images for approved agent requests
-        self._temp_files: list[str] = []
         # Threading event for signaling ready state (set by on_ready)
         self._ready_event: Optional[threading.Event] = None
 
@@ -735,8 +733,10 @@ class ChatBridgeBot(discord.Client):
             # Approved requests enter the normal agent loop; tool policy still applies.
             prefixed_text = safe_text
 
-            # Handle image attachments for the agent
+            # Handle image attachments for the agent. Track temp files per request
+            # so concurrent channels cannot delete each other's in-flight images.
             attachment_paths = []
+            temp_files: list[str] = []
             for att in message.attachments:
                 if att.content_type and att.content_type.startswith("image/"):
                     try:
@@ -747,12 +747,12 @@ class ChatBridgeBot(discord.Client):
                         tmp.write(img_bytes)
                         tmp.close()
                         attachment_paths.append(tmp.name)
-                        self._temp_files.append(tmp.name)
+                        temp_files.append(tmp.name)
                     except Exception:
                         pass
 
             if not self._has_tool_access(str(message.author.id), channel_id, guild_id):
-                self._cleanup_temp_files()
+                self._cleanup_temp_files(temp_files)
                 return "Web UI approval expired or was revoked before the request could start."
             user_msg = UserMessage(message=prefixed_text, attachments=attachment_paths)
             message_queue.log_user_message(
@@ -774,21 +774,22 @@ class ChatBridgeBot(discord.Client):
                 return result if isinstance(result, str) else str(result)
             finally:
                 bridge_delivery.reset(token)
-                self._cleanup_temp_files()
+                self._cleanup_temp_files(temp_files)
 
         except ImportError:
             logger.exception("Approved Discord agent runtime is unavailable")
             return "The agent runtime is unavailable. Check the Agent Zero logs."
 
-    def _cleanup_temp_files(self):
-        """Remove temporary image files created during message processing."""
+    @staticmethod
+    def _cleanup_temp_files(paths):
+        """Remove the temporary image files created for one request."""
         remaining = []
-        for path in self._temp_files:
+        for path in paths:
             try:
                 os.unlink(path)
             except OSError:
                 remaining.append(path)
-        self._temp_files = remaining
+        paths[:] = remaining
 
     # ------------------------------------------------------------------
     # Response sending
