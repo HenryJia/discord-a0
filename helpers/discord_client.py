@@ -5,9 +5,15 @@ import mimetypes
 import os
 import time
 from copy import deepcopy
+from urllib.parse import quote
 from typing import Optional
 
 DISCORD_API_BASE = "https://discord.com/api/v10"
+
+
+def _seg(value) -> str:
+    """Percent-encode one dynamic value for safe use in a URL path or query."""
+    return quote(str(value), safe="")
 
 
 def get_bot_configs(config):
@@ -177,23 +183,23 @@ class DiscordClient:
     # --- Guild / Server ---
 
     async def get_guild(self, guild_id: str) -> dict:
-        return await self._request("GET", f"/guilds/{guild_id}")
+        return await self._request("GET", f"/guilds/{_seg(guild_id)}")
 
     async def get_guild_channels(self, guild_id: str) -> list:
-        return await self._request("GET", f"/guilds/{guild_id}/channels")
+        return await self._request("GET", f"/guilds/{_seg(guild_id)}/channels")
 
     async def get_guild_members(self, guild_id: str, limit: int = 100, after: str = "0") -> list:
         return await self._request(
-            "GET", f"/guilds/{guild_id}/members?limit={min(limit, 1000)}&after={after}"
+            "GET", f"/guilds/{_seg(guild_id)}/members?limit={min(limit, 1000)}&after={_seg(after)}"
         )
 
     async def get_guild_member(self, guild_id: str, user_id: str) -> dict:
-        return await self._request("GET", f"/guilds/{guild_id}/members/{user_id}")
+        return await self._request("GET", f"/guilds/{_seg(guild_id)}/members/{_seg(user_id)}")
 
     # --- Channels ---
 
     async def get_channel(self, channel_id: str) -> dict:
-        return await self._request("GET", f"/channels/{channel_id}")
+        return await self._request("GET", f"/channels/{_seg(channel_id)}")
 
     async def get_channel_messages(
         self, channel_id: str, limit: int = 50,
@@ -201,10 +207,10 @@ class DiscordClient:
     ) -> list:
         params = f"?limit={min(limit, 100)}"
         if before:
-            params += f"&before={before}"
+            params += f"&before={_seg(before)}"
         if after:
-            params += f"&after={after}"
-        return await self._request("GET", f"/channels/{channel_id}/messages{params}")
+            params += f"&after={_seg(after)}"
+        return await self._request("GET", f"/channels/{_seg(channel_id)}/messages{params}")
 
     async def get_all_channel_messages(
         self, channel_id: str, limit: int = 200, after: Optional[str] = None,
@@ -219,9 +225,9 @@ class DiscordClient:
             if before_id:
                 params += f"&before={before_id}"
             if after and not before_id:
-                params += f"&after={after}"
+                params += f"&after={_seg(after)}"
 
-            batch = await self._request("GET", f"/channels/{channel_id}/messages{params}")
+            batch = await self._request("GET", f"/channels/{_seg(channel_id)}/messages{params}")
             if not batch:
                 break
             all_messages.extend(batch)
@@ -234,10 +240,10 @@ class DiscordClient:
     # --- Threads ---
 
     async def get_active_threads(self, guild_id: str) -> dict:
-        return await self._request("GET", f"/guilds/{guild_id}/threads/active")
+        return await self._request("GET", f"/guilds/{_seg(guild_id)}/threads/active")
 
     async def get_channel_threads(self, channel_id: str) -> dict:
-        return await self._request("GET", f"/channels/{channel_id}/threads/archived/public")
+        return await self._request("GET", f"/channels/{_seg(channel_id)}/threads/archived/public")
 
     # --- Sending (bot only) ---
 
@@ -253,12 +259,12 @@ class DiscordClient:
             payload["attachments"] = [{"id": index, "filename": name} for index, (name, _data) in enumerate(files)]
         if reply_to:
             payload["message_reference"] = {"message_id": reply_to}
-        return await self._request("POST", f"/channels/{channel_id}/messages", json=payload, files=files)
+        return await self._request("POST", f"/channels/{_seg(channel_id)}/messages", json=payload, files=files)
 
     async def add_reaction(self, channel_id: str, message_id: str, emoji: str) -> None:
         self._assert_bot_only("add_reaction")
         await self._request(
-            "PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
+            "PUT", f"/channels/{_seg(channel_id)}/messages/{_seg(message_id)}/reactions/{_seg(emoji)}/@me"
         )
 
     # --- Search ---
@@ -267,12 +273,12 @@ class DiscordClient:
         self, guild_id: str, query: str,
         channel_id: Optional[str] = None, author_id: Optional[str] = None, limit: int = 25,
     ) -> dict:
-        params = f"?content={query}&limit={min(limit, 25)}"
+        params = f"?content={_seg(query)}&limit={min(limit, 25)}"
         if channel_id:
-            params += f"&channel_id={channel_id}"
+            params += f"&channel_id={_seg(channel_id)}"
         if author_id:
-            params += f"&author_id={author_id}"
-        return await self._request("GET", f"/guilds/{guild_id}/messages/search{params}")
+            params += f"&author_id={_seg(author_id)}"
+        return await self._request("GET", f"/guilds/{_seg(guild_id)}/messages/search{params}")
 
     # --- Users ---
 
@@ -280,7 +286,7 @@ class DiscordClient:
         return await self._request("GET", "/users/@me")
 
     async def get_user(self, user_id: str) -> dict:
-        return await self._request("GET", f"/users/{user_id}")
+        return await self._request("GET", f"/users/{_seg(user_id)}")
 
     async def get_current_user_guilds(self) -> list:
         return await self._request("GET", "/users/@me/guilds")
