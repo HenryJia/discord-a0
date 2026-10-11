@@ -411,19 +411,8 @@ class ChatBridgeBot(discord.Client):
         if not user_text.strip():
             return
 
-        self._register_access_request(message)
-        if await self._handle_bridge_command(message):
-            return
-
-        # Enforce content length limit before any processing
-        if len(user_text) > self.MAX_CHAT_MESSAGE_LENGTH:
-            await message.channel.send(
-                f"Message too long ({len(user_text)} chars). "
-                f"Max: {self.MAX_CHAT_MESSAGE_LENGTH}."
-            )
-            return
-
-        # Per-user rate limiting
+        # Per-user rate limiting applies to bridge control commands too, so it
+        # must run before command handling rather than after it.
         user_key = str(message.author.id)
         now = time.monotonic()
         if user_key not in self._rate_limits:
@@ -438,6 +427,18 @@ class ChatBridgeBot(discord.Client):
             )
             return
         timestamps.append(now)
+
+        self._register_access_request(message)
+        if await self._handle_bridge_command(message):
+            return
+
+        # Enforce content length limit before any processing
+        if len(user_text) > self.MAX_CHAT_MESSAGE_LENGTH:
+            await message.channel.send(
+                f"Message too long ({len(user_text)} chars). "
+                f"Max: {self.MAX_CHAT_MESSAGE_LENGTH}."
+            )
+            return
 
         # Controls must reach a running task before waiting for its message lock.
         resolved_command = False
