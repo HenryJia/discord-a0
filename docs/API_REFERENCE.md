@@ -53,7 +53,6 @@ The plugin communicates with Discord's v10 REST API. Here are the endpoints it c
 | Add reaction | `/channels/{id}/messages/{id}/reactions/{emoji}/@me` | PUT |
 | List members | `/guilds/{id}/members` | GET |
 | Get member | `/guilds/{id}/members/{id}` | GET |
-| Search messages | `/guilds/{id}/messages/search` | GET |
 | Current user | `/users/@me` | GET |
 | User guilds | `/users/@me/guilds` | GET |
 

@@ -283,19 +283,6 @@ class DiscordClient:
             "PUT", f"/channels/{_seg(channel_id)}/messages/{_seg(message_id)}/reactions/{_seg(emoji)}/@me"
         )
 
-    # --- Search ---
-
-    async def search_messages(
-        self, guild_id: str, query: str,
-        channel_id: Optional[str] = None, author_id: Optional[str] = None, limit: int = 25,
-    ) -> dict:
-        params = f"?content={_seg(query)}&limit={min(limit, 25)}"
-        if channel_id:
-            params += f"&channel_id={_seg(channel_id)}"
-        if author_id:
-            params += f"&author_id={_seg(author_id)}"
-        return await self._request("GET", f"/guilds/{_seg(guild_id)}/messages/search{params}")
-
     # --- Users ---
 
     async def get_current_user(self) -> dict:
