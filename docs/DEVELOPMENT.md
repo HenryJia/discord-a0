@@ -24,6 +24,7 @@ Use the framework interpreter for backend checks, not the agent execution enviro
 /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_reply_delivery
 /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_access_approvals
 /opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_media
+/opt/venv-a0/bin/python -m usr.plugins.discord_a0.tests.test_poll_workflow
 node --test usr/plugins/discord_a0/tests/test_config_store.mjs
 ```
 
