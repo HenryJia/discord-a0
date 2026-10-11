@@ -12,6 +12,15 @@ test("shared integration settings are always visible", () => {
     }
 });
 
+test("list textareas seed once so newlines can be typed", () => {
+    const html = readFileSync(new URL("../webui/config.html", import.meta.url), "utf8");
+    for (const field of ["servers", "allowed_users"]) {
+        const block = html.match(new RegExp(`<textarea[^>]*bot\\.(chat_bridge\\.)?${field}[\\s\\S]*?</textarea>`))[0];
+        assert.ok(block.includes("x-init="), `${field} textarea must seed with x-init`);
+        assert.doesNotMatch(block, /:value=/, `${field} textarea must not rebind :value`);
+    }
+});
+
 test("approval buttons highlight the confirmed access state", () => {
     const html = readFileSync(new URL("../webui/config.html", import.meta.url), "utf8");
     const approve = html.match(/class="btn btn-action discord-access-approve"[\s\S]*?:aria-pressed="([^"]+)"/)[1];

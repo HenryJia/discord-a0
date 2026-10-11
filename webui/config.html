@@ -97,7 +97,7 @@
                     </div>
                     <div class="field-control">
                         <textarea rows="3"
-                            :value="(bot.servers || []).join('\n')"
+                            x-init="$el.value = (bot.servers || []).join('\n')"
                             @input="bot.servers = $event.target.value.split('\n').map(s => s.trim()).filter(Boolean)"
                             placeholder="Leave empty for all servers"></textarea>
                     </div>
@@ -157,7 +157,7 @@
                     </div>
                     <div class="field-control">
                         <textarea rows="3"
-                            :value="(bot.chat_bridge.allowed_users || []).join('\n')"
+                            x-init="$el.value = (bot.chat_bridge.allowed_users || []).join('\n')"
                             @input="bot.chat_bridge.allowed_users = $event.target.value.split('\n').map(s => s.trim()).filter(Boolean)"
                             placeholder="One user ID per line"></textarea>
                     </div>
